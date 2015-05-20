@@ -1,0 +1,28 @@
+QUERY THAT RETURNS LEFT TABLE:
+
+select users.name,SUM(sales.quantity * sales.price)
+from sales, users
+where users.id = sales.uid
+group by sales.uid, users.name
+
+
+QUERY THAT RETURNS TOP TABLE:
+
+select products.name,SUM(sales.quantity * sales.price)
+from sales, products
+where products.id = sales.pid
+group by sales.pid, products.name
+
+
+QUERY THAT RETURNS MIDDLE TABLE:
+
+CREATE table middleTable as (
+SELECT users.name, SUM(sales.quantity*sales.price) AS total, products.name as productName
+FROM users, products, sales
+	WHERE sales.uid = users.id AND sales.pid = products.id 
+	GROUP BY users.name, products.name
+	ORDER BY SUM(sales.quantity*sales.price) DESC
+);
+
+
+
