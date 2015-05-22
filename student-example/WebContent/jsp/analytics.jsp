@@ -44,6 +44,7 @@
                                 <%
                                     if (nameNotNull && roleIsOwner) {
                                 %>
+                                
                                 <jsp:include page="/jsp/list-analytics.jsp" />
                                 <%
                                     } else {
@@ -54,7 +55,6 @@
                                 <%
                                     }
                                 %>
-                                
                             </div>
                         </div>
                         <jsp:include page="/html/footer.html" />

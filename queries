@@ -1,7 +1,7 @@
 create table customerSort as
 (
 SELECT name, sum(total) 
-FROM (SELECT name, total FROM FullProductHistory) as ppc
+FROM (SELECT name, total FROM FullProductHistory) as fph
  GROUP BY name
  ORDER BY SUM(total) DESC
  );
@@ -9,7 +9,7 @@ FROM (SELECT name, total FROM FullProductHistory) as ppc
 create table productSort as
 (
 SELECT productname, sum(total) 
-FROM (SELECT productname, total FROM FullProductHistory) as ppc
+FROM (SELECT productname, total FROM FullProductHistory) as fph
  GROUP BY productname
  ORDER BY SUM(total) DESC 
  );
