@@ -8,7 +8,11 @@
            						<%
 	                                Connection conn = null;
 	                                ResultSet rsCategory1 = null;
-	 		                    	
+	                                ResultSet rsProductCount = null;
+	                                PreparedStatement pstmtProductsCount = null;
+	                                Statement statementProductCount = null;
+	                                int productCount = -1;
+	                                
 	 		                    	try {
 	 		                           // Registering Postgresql JDBC driver with the DriverManager
 	 		                           Class.forName("org.postgresql.Driver");
@@ -20,10 +24,42 @@
 	 		                           
 	 		                        
 	 		                    %>
+	 		                    
+	 		                    <%
+	 		                   		if(request.getParameter("productCount") == null || request.getParameter("action") != null)
+	 		                   		{
+		 		                   		statementProductCount = conn.createStatement();
+		 		                    
+		 		           				String categoryProductCount;
+		 		                    	if(request.getParameter("category") == null)
+		 		                    	{
+		 		                    		categoryProductCount = "";
+		 		                    	}
+		 		                    	else
+		 		                    	{
+		 		                    		categoryProductCount = request.getParameter("category");
+		 		                    	}
+		 		                    	
+		 		                    	if(categoryProductCount.equals("allCategories") || categoryProductCount.equals(""))
+		 		                    	{
+		 		                  			pstmtProductsCount = conn.prepareStatement("select count(id) from products");
+		 		                    	}
+		 		                    	else
+		 		                    	{
+		 		                    		pstmtProductsCount = conn.prepareStatement("select count(id) from products where cid = ?");
+		 		                    		pstmtProductsCount.setInt(1, Integer.parseInt(categoryProductCount));
+		 		                    	}
+		 		                    	rsProductCount = pstmtProductsCount.executeQuery();
+			                    		rsProductCount.next();
+			                    		productCount = rsProductCount.getInt("count");
+			                    		application.setAttribute("productCount", productCount);
+	 		                   		}
+	 		                    %>
                                 <table style="font-size: 12px;">
             						<form action="analytics" method="GET">
             						<input type="hidden" value="0" name="productOffset"></input>
             						<input type="hidden" value="0" name="custStateOffset"></input>
+            						<input type="hidden" value="search" name="action"></input>
 		                            <tr>
 						                <td>Customers or State:</td>
 						                <td><select id="filter1" name="filter1">
@@ -50,7 +86,6 @@
 			 					                	Statement statement = conn.createStatement();
 		
 				 		                    		rsCategory1 = statement.executeQuery("select categories.name, categories.id from categories");
-				 		                    		rsCategory1.next();
 												%>
 												<option value="allCategories">All categories</option>
 												<%
@@ -72,9 +107,11 @@
 					            <%
 					                // Close the ResultSet
 					                rsCategory1.close();
+					            	if(rsProductCount != null) rsProductCount.close();
 					
 					                // Close the Statement
 					                statement.close();
+					                if(statementProductCount != null) statementProductCount.close();
 					
 					                // Close the Connection
 					                conn.close();

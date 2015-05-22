@@ -28,6 +28,11 @@
 	  Statement categoryStatement1 = conn.createStatement();
 	  int productOffset = 0;
 	  int custStateOffset = 0;
+	  int productCount = 0;
+	  String filter1 = "";
+	  String filter2 = "";
+	  String category = "";
+	  
 	  if (request.getParameter("productOffset") == null) {
 		  productOffset = 0;
 	  } else {
@@ -40,15 +45,50 @@
 		  custStateOffset = Integer.parseInt(request.getParameter("custStateOffset"));
 	  }
 	  
-	  String filter1 = request.getParameter("filter1");
-	  String filter2 = request.getParameter("filter2");
+	  if(request.getParameter("productCount") == null)
+	  {
+		  if(application.getAttribute("productCount") != null)
+		  {
+			productCount = (Integer)application.getAttribute("productCount");
+		  }
+		  else
+		  {
+			  productCount = 0;
+			  out.print("productCount is null");
+		  }
+	  }
+	  else if(request.getParameter("productCount").equals(""))
+	  {
+		  productCount = 0;
+	  }
+	  else
+	  {
+		  productCount = Integer.parseInt(request.getParameter("productCount"));
+	  }
 	  
-	  if (request.getParameter("category")==null) {
+	  if (request.getParameter("filter1") != null) 
+	  {
+		  filter1 = request.getParameter("filter1");
+	  }
+	  
+	  if(request.getParameter("filter2") != null)
+	  {
+		  
+	 	filter2 = request.getParameter("filter2");
+	  }
+	  
+	  if(request.getParameter("category") != null)
+	  {
+		  
+	 	category = request.getParameter("category");
+	  }
+	  
+	  if (category.equals("")) {
 		  pstmtProducts = conn.prepareStatement("SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
 				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + productOffset);
-	  } else if (request.getParameter("category").equals("allCategories")) {
+	  } else if (category.equals("allCategories")) {
 		  pstmtProducts = conn.prepareStatement("SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
@@ -66,11 +106,26 @@
 	%>     
 	<table class="table table-border">
 		<tr>
-		<% while (rsProducts.next()) { 
+		<%
+		int productCounter = 0;
+		while (rsProducts.next()) { 
 			out.print("<th>"+rsProducts.getString("productName")+"</th>");
+			productCounter++;
 		} %>
 		</tr>
 	</table>
+				<%if(productCounter >= 10 && (productOffset+10) != productCount) 
+					{ %>
+				<form action="analytics" method="GET">
+				<input type="hidden" value="<%=productOffset+10%>" name="productOffset"></input>
+		        <input type="hidden" value="<%=custStateOffset%>" name="custStateOffset"></input>
+		        <input type="hidden" value="<%=filter1%>" name="filter1"></input>
+		        <input type="hidden" value="<%=filter2%>" name="filter2"></input>
+		        <input type="hidden" value="<%=category%>" name="category"></input>
+		        <input type="hidden" value="<%=productCount%>" name="productCount"></input>
+		        <input type="submit" value="Next 10 Products">
+				</form>
+				<% } %>
 <%-- -------- Close Connection Code -------- --%>
 <%
     // Close the ResultSets
