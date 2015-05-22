@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS sales CASCADE;
 DROP TABLE IF EXISTS states CASCADE;
 DROP TABLE IF EXISTS cart_history CASCADE;
+DROP TABLE IF EXISTS fullproducthistory CASCADE;
 
 /**table 0: [entity] states**/
 CREATE TABLE states (
