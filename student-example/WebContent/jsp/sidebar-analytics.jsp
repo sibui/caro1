@@ -9,9 +9,12 @@
 	                                Connection conn = null;
 	                                ResultSet rsCategory1 = null;
 	                                ResultSet rsProductCount = null;
+	                                ResultSet rsCustState = null;
 	                                PreparedStatement pstmtProductsCount = null;
 	                                Statement statementProductCount = null;
+	                                Statement statementCustStateCount = null;
 	                                int productCount = -1;
+	                                int custStateCount = -1;
 	                                
 	 		                    	try {
 	 		                           // Registering Postgresql JDBC driver with the DriverManager
@@ -26,7 +29,7 @@
 	 		                    %>
 	 		                    
 	 		                    <%
-	 		                   		if(request.getParameter("productCount") == null || request.getParameter("action") != null)
+	 		                   		if(request.getParameter("custStateCount") == null ||request.getParameter("productCount") == null || request.getParameter("action") != null)
 	 		                   		{
 		 		                   		statementProductCount = conn.createStatement();
 		 		                    
@@ -53,6 +56,29 @@
 			                    		rsProductCount.next();
 			                    		productCount = rsProductCount.getInt("count");
 			                    		application.setAttribute("productCount", productCount);
+			                    		
+			                    		statementCustStateCount = conn.createStatement();
+			                    		
+			                    		if(request.getParameter("action") != null)
+			                    		{
+			                    			if(((String)request.getParameter("filter1")).equals("States"))
+			                    			{
+			                    				custStateCount = 50;    				
+			                    			}
+			                    			else
+			                    			{
+					                    		rsCustState = statementCustStateCount.executeQuery("select count(id) from users");
+					                    		rsCustState.next();
+					                    		custStateCount = rsCustState.getInt("count");
+			                    			}
+			                    		}
+			                    		else
+			                    		{
+			                    			rsCustState = statementCustStateCount.executeQuery("select count(id) from users");
+				                    		rsCustState.next();
+				                    		custStateCount = rsCustState.getInt("count");
+			                    		}
+			                    		application.setAttribute("custStateCount", custStateCount);		                
 	 		                   		}
 	 		                    %>
                                 <table style="font-size: 12px;">

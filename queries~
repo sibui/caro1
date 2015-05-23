@@ -1,7 +1,15 @@
+create table stateSort as
+(
+SELECT state, sum(total) 
+FROM (SELECT state, total FROM FullProductHistory) as fph
+ GROUP BY state
+ ORDER BY SUM(total) DESC
+ );
+
 create table customerSort as
 (
 SELECT name, sum(total) 
-FROM (SELECT name, total FROM FullProductHistory) as ppc
+FROM (SELECT name, total FROM FullProductHistory) as fph
  GROUP BY name
  ORDER BY SUM(total) DESC
  );
@@ -9,25 +17,49 @@ FROM (SELECT name, total FROM FullProductHistory) as ppc
 create table productSort as
 (
 SELECT productname, sum(total) 
-FROM (SELECT productname, total FROM FullProductHistory) as ppc
+FROM (SELECT productname, total FROM FullProductHistory) as fph
  GROUP BY productname
  ORDER BY SUM(total) DESC 
  );
 
 create table FullProductHistory as
 (
-SELECT sales.uid, users.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category
-FROM users, products, sales, categories	
-WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = products.cid
-GROUP BY users.name, sales.uid, products.name, categories.id
-ORDER BY SUM(sales.price*sales.quantity) DESC
+SELECT sales.uid, users.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category, states.name
+FROM users, products, sales, categories, states	
+WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = products.cid AND users.state = states.id
+GROUP BY users.name, sales.uid, products.name, categories.id, states.name
+ORDER BY SUM(sales.price*sales.quantity) DESC 
 );
 
 
 
 PROPOSED BODY (MIDDLE) TABLE QUERY:
 
-select FullProductHistory.name, FullProductHistory.productname from FullProductHistory 
-WHERE name in (SELECT name from customerSort limit 10 offset 0)
-AND productname in (SELECT productname from productSort limit 10 offset 0)
+select FullProductHistory.name, FullProductHistory.productname, total from FullProductHistory 
+WHERE name in (SELECT name from customerSort order by name limit 10 offset 0)
+AND productname in (SELECT productname from productSort order by sum limit 10 offset 0)
 order by name
+
+
+MIDDLE TABLE QUERY states TOP-K:
+select state, FullProductHistory.productname, total from FullProductHistory 
+WHERE state in (SELECT state from stateSort order by sum DESC limit 10 offset 0)
+AND productname in (SELECT productname from productSort order by sum DESC limit 10 offset 0)
+order by productname 
+
+select state, FullProductHistory.productname, total from FullProductHistory 
+WHERE state in (SELECT state from stateSort order by state ASC limit 10 offset 0)
+AND productname in (SELECT productname from productSort order by productname ASC limit 10 offset 0)
+order by productname ASC
+
+NEW PROPOSED MIDDLE TABLE QUERY:
+
+select state, FullProductHistory.productname, total from FullProductHistory 
+WHERE state in (SELECT state from stateSort order by sum DESC limit 10 offset 0)
+AND productname = ?
+
+
+select state, FullProductHistory.productname, total from FullProductHistory 
+WHERE state in (SELECT state from stateSort where state='Minnesota' order by sum DESC limit 10 offset 0)
+AND productname in (SELECT productname from productSort order by sum DESC limit 10 offset 0)
+order by productname
