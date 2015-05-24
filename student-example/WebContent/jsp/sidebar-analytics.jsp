@@ -215,6 +215,7 @@
 					            	
 					                // Wrap the SQL exception in a runtime exception to propagate
 					                // it upwards
+					                
 					                throw new RuntimeException(e);
 					             
 					            }%>

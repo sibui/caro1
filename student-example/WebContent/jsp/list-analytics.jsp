@@ -3,17 +3,21 @@
 <%@ page import="java.sql.*"%>
 <%-- -------- Open Connection Code -------- --%>
 	<%
+
 	  Connection conn = null;
 	  PreparedStatement pstmtProducts = null;
 	  PreparedStatement pstmtCustStates = null;
 	  PreparedStatement pstmtMiddleTable = null;
+	  PreparedStatement pstmtFullProductHistory = null;
 	  ResultSet rsProducts = null;
 	  ResultSet rsCustStates = null;
 	  ResultSet rsMiddle = null;
+	  ResultSet rsFullProductHistory = null;
 	 %>
 	
 	 <% 
 	  try {
+
 	      // Registering Postgresql JDBC driver with the DriverManager
 	      Class.forName("org.postgresql.Driver");
 	
@@ -43,6 +47,10 @@
  	  
  	  Statement dropTempStatement3 = conn.createStatement();
  	  dropTempStatement3.executeUpdate("drop table if exists middleTable");
+ 	  
+ 	 Statement dropTempStatement4 = conn.createStatement();
+	  dropTempStatement4.executeUpdate("drop table if exists FullProductHistory");
+ 	 
 	  
 	  if (request.getParameter("productOffset") == null) {
 		  productOffset = 0;
@@ -131,24 +139,34 @@
 		  productNameOrTopK = "SUM(total) DESC";
 	  }
 	  
+	  boolean categorySearch = false;
+	  
 	  if (category.equals("")) {
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY productName ASC LIMIT 10 OFFSET " + productOffset+")");
+				  "ORDER BY productName ASC LIMIT 10 OFFSET ? )");
+		  pstmtProducts.setInt(1,productOffset);
 	  } else if (category.equals("allCategories")) {  
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY "+productNameOrTopK +"  LIMIT 10 OFFSET " + productOffset+")");
+				  "ORDER BY ? LIMIT 10 OFFSET ? )");
+		  pstmtProducts.setString(1,productNameOrTopK);
+		  pstmtProducts.setInt(2,productOffset);
 	  } else {
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
-				  "FROM (SELECT productName, total FROM FullProductHistory WHERE category = ?) as fph " +
+				  "FROM (SELECT productName, total FROM FullProductHistory WHERE category = ? ) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY "+ productNameOrTopK+ " LIMIT 10 OFFSET " + productOffset+")");
-		  pstmtProducts.setInt(1, Integer.parseInt(request.getParameter("category")));
-		  
-	  }
+				  "ORDER BY "+ productNameOrTopK+ " LIMIT 10 OFFSET ? )");
+		  categorySearch = true;
+		  pstmtProducts.setInt(1, Integer.parseInt(request.getParameter("category")));	
+		  pstmtProducts.setInt(2,productOffset);
+	  }	  
+	  
+	  
+	  
+	  String custOrStateFPH = "users.name";
 	  // (default state)no filters have been chosen
 	  if(filter1.equals("") && filter2.equals(""))
 	  {
@@ -157,57 +175,101 @@
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY name ASC LIMIT 20 OFFSET " + custStateOffset +")");
+				  "ORDER BY name ASC LIMIT 20 OFFSET ? )");
+		  pstmtCustStates.setInt(1,custStateOffset);
 	  } //(customer or state) has been chosen
 	  else if(filter1.equals("Customers") && filter2.equals("Alphabetical"))
 	  {
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY name ASC LIMIT 20 OFFSET " + custStateOffset +")");	  
+				  "ORDER BY name ASC LIMIT 20 OFFSET ?)");	  
+		  pstmtCustStates.setInt(1,custStateOffset);
 	  }// (customer or state) and (alphabetical or top-k) has been chosen
 	  else if(filter1.equals("Customers") && filter2.equals("Top-K"))
 	  {
+		  
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET " + custStateOffset+")");
+				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET ?)");
+		  pstmtCustStates.setInt(1,custStateOffset);
 	  } //(alphabetical or top-k) has been chosen
 	  else if(filter1.equals("States") && filter2.equals("Alphabetical"))
 	  {
+		  custOrStateFPH = "states.name";
 		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
 				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
 				  "GROUP BY state "+
-				  "ORDER BY state ASC LIMIT 20 OFFSET " + custStateOffset+")");
+				  "ORDER BY state ASC LIMIT 20 OFFSET ?)");
+		  pstmtCustStates.setInt(1,custStateOffset);
 	  }
 	  else if(filter1.equals("States") && filter2.equals("Top-K"))
 	  {
+		  custOrStateFPH = "states.name";
 		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
 				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
 				  "GROUP BY state "+
-				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET " + custStateOffset+")");
+				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET ?)");
+		  pstmtCustStates.setInt(1,custStateOffset);
 	  }
 	  
 	  
+	  //check if user wants specific category or not	  
+	  if(categorySearch)
+	  {
+		  int categoryFilterFPH = Integer.parseInt(request.getParameter("category"));
+		  pstmtFullProductHistory = conn.prepareStatement("create temporary table FullProductHistory as(SELECT sales.uid, "+custOrStateFPH+", SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category "+
+				  "FROM users, products, sales, categories, states "+
+				  "WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = ? AND users.state = states.id "+
+				  "GROUP BY "+custOrStateFPH+", sales.uid, products.name, categories.id "+
+				  "ORDER BY SUM(sales.price*sales.quantity) DESC)");
+		  pstmtFullProductHistory.setInt(1, categoryFilterFPH);
+	  }
+	  else
+	  {
+		  pstmtFullProductHistory = conn.prepareStatement("create temporary table FullProductHistory as(SELECT sales.uid, "+custOrStateFPH+", SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category "+
+				  "FROM users, products, sales, categories, states "+
+				  "WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = products.cid AND users.state = states.id "+
+				  "GROUP BY "+custOrStateFPH+", sales.uid, products.name, categories.id "+
+				  "ORDER BY SUM(sales.price*sales.quantity) DESC)");
+	  }
+	 
+	  
+
+	  pstmtFullProductHistory.executeUpdate();
+
 	  //create the left and top tables
 	  pstmtCustStates.executeUpdate();
 	  pstmtProducts.executeUpdate();
 	  
+	  
 	  //is it state or customer?
 	  String custOrState = "state";
 	  String custOrStateTable = "stateSort";
+	  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
+			  "select ? as name, productname, total from FullProductHistory "+
+			  "WHERE ? in (SELECT ? from stateSort) "+
+			  "AND productname in (SELECT productname from productSort) "+
+			  "order by productname)");
+	  
 	  if(filter1.equals("Customers") || filter1.equals(""))
 	  {
 		  custOrState = "name";
 		  custOrStateTable = "customerSort";
+		  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
+				  "select ? as name, productname, total from FullProductHistory "+
+				  "WHERE ? in (SELECT ? from customerSort) "+
+				  "AND productname in (SELECT productname from productSort) "+
+				  "order by productname)");
 	  }
+
 	  //create middleTable
-	  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
-					  "select "+custOrState+" as name, productname, total from FullProductHistory "+
-					  "WHERE "+custOrState+" in (SELECT "+custOrState+" from "+custOrStateTable+") "+
-					  "AND productname in (SELECT productname from productSort) "+
-					  "order by productname);");
+
 	  
+	  pstmtMiddleTable.setString(1,custOrState);
+	  pstmtMiddleTable.setString(2,custOrState);
+	  pstmtMiddleTable.setString(3,custOrState);
 	  pstmtMiddleTable.executeUpdate();
 	  
 	  Statement custStateStatement =  conn.createStatement();
@@ -378,6 +440,5 @@
 	
     // Wrap the SQL exception in a runtime exception to propagate
     // it upwards
-    
     throw new RuntimeException(e);
 }%>

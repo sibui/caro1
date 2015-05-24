@@ -137,5 +137,4 @@ ORDER BY SUM(sales.price*sales.quantity) DESC
 );
 CREATE INDEX usernameIndex ON fullProductHistory(name);
 CREATE INDEX productNameIndex ON fullProductHistory(productName);
-CREATE INDEX totalIndex ON fullProductHistory(total);
 CREATE INDEX stateIndex ON fullProductHistory(state);
