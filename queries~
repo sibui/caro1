@@ -22,6 +22,14 @@ FROM (SELECT productname, total FROM FullProductHistory) as fph
  ORDER BY SUM(total) DESC 
  );
 
+create table middleTable as
+(
+select state as name, FullProductHistory.productname, total from FullProductHistory 
+WHERE state in (SELECT state from stateSort order by sum DESC limit 10 offset 0)
+AND productname in (SELECT productname from productSort order by sum DESC limit 10 offset 0)
+order by productname
+);
+
 create table FullProductHistory as
 (
 SELECT sales.uid, users.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category, states.name as state

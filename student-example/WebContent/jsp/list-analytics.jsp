@@ -23,7 +23,7 @@
 	
 	      // Open a connection to the database using DriverManager
 	      conn = DriverManager.getConnection(
-	          "jdbc:postgresql://localhost/cse135?" +
+	          "jdbc:postgresql://localhost/cse135_small?" +
 	          "user=postgres&password=postgres");
 	 %>
       <% 
@@ -151,10 +151,10 @@
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY ? LIMIT 10 OFFSET ? )");
-		  pstmtProducts.setString(1,productNameOrTopK);
-		  pstmtProducts.setInt(2,productOffset);
+				  "ORDER BY "+ productNameOrTopK+ " LIMIT 10 OFFSET ? )");
+		  pstmtProducts.setInt(1,productOffset);
 	  } else {
+		  
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory WHERE category = ? ) as fph " +
 				  "GROUP BY productName " +
@@ -198,18 +198,18 @@
 	  else if(filter1.equals("States") && filter2.equals("Alphabetical"))
 	  {
 		  custOrStateFPH = "states.name";
-		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
-				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
-				  "GROUP BY state "+
-				  "ORDER BY state ASC LIMIT 20 OFFSET ?)");
+		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT name as name, sum(total) " +
+				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
+				  "GROUP BY name "+
+				  "ORDER BY name ASC LIMIT 20 OFFSET ?)");
 		  pstmtCustStates.setInt(1,custStateOffset);
 	  }
 	  else if(filter1.equals("States") && filter2.equals("Top-K"))
 	  {
 		  custOrStateFPH = "states.name";
-		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
-				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
-				  "GROUP BY state "+
+		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT name as name, sum(total) " +
+				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
+				  "GROUP BY name "+
 				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET ?)");
 		  pstmtCustStates.setInt(1,custStateOffset);
 	  }
@@ -237,29 +237,30 @@
 	 
 	  
 	  //create FullProductHistory and its indices
-	  long startTime = System.nanoTime(); 
+	  //long startTime = System.nanoTime(); 
                                 
 	  pstmtFullProductHistory.executeUpdate();
-	  long endTime = System.nanoTime(); 
-      long duration = (endTime - startTime);
-      out.print("time of fullProductHistory:"+ duration);
-	/*  Statement createIndexStatement = conn.createStatement();
+	  //long endTime = System.nanoTime(); 
+      //long duration = (endTime - startTime);
+      //out.print("time of fullProductHistory:"+ duration);
+	 /*
+	 Statement createIndexStatement = conn.createStatement();
 	  dropTempStatement4.executeUpdate("CREATE INDEX nameOrStateIndex ON fullProductHistory(name)");	  
 	  Statement createIndexStatement1 = conn.createStatement();
-	  dropTempStatement4.executeUpdate("CREATE INDEX productNameIndex ON fullProductHistory(productName)");*/
-
+	  dropTempStatement4.executeUpdate("CREATE INDEX productNameIndex ON fullProductHistory(productName)");
+	 */
 	  //create the left and top tables
-	  startTime = System.nanoTime();
+	 // startTime = System.nanoTime();
 	  pstmtCustStates.executeUpdate();
-	  endTime = System.nanoTime();
-	  duration = (endTime-startTime);
-	  out.print("time of left Table:"+ duration);
+	//  endTime = System.nanoTime();
+	//  duration = (endTime-startTime);
+	//  out.print("time of left Table:"+ duration);
 	  
-	  startTime = System.nanoTime();
+	//  startTime = System.nanoTime();
 	  pstmtProducts.executeUpdate();
-	  endTime = System.nanoTime();
-	  duration = (endTime-startTime);
-	  out.print("time of top Table:"+ duration);
+	//  endTime = System.nanoTime();
+	//  duration = (endTime-startTime);
+	//  out.print("time of top Table:"+ duration);
 	  
 	  
 	  //is it state or customer?
@@ -288,11 +289,11 @@
 	  pstmtMiddleTable.setString(1,custOrState);
 	  pstmtMiddleTable.setString(2,custOrState);
 	  pstmtMiddleTable.setString(3,custOrState);
-	  startTime = System.nanoTime();
+	  //startTime = System.nanoTime();
 	  pstmtMiddleTable.executeUpdate();
-	  endTime = System.nanoTime();
-	  duration = (endTime-startTime);
-	  out.print("time of middle Table:"+ duration);
+	  //endTime = System.nanoTime();
+	 // duration = (endTime-startTime);
+	  //out.print("time of middle Table:"+ duration);
 	  
 	  
 	  

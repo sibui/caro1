@@ -9,7 +9,7 @@
     boolean roleIsOwner = (role != null) ? role
             .equalsIgnoreCase("owner") : false;
             
-            long startTime = System.nanoTime();     
+           // long startTime = System.nanoTime();     
 %>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
     <jsp:include page="/jsp/header.jsp" />
@@ -56,9 +56,9 @@
                                 </div>
                                 <%
                                     }
-                                long endTime = System.nanoTime(); 
-                                long duration = (endTime - startTime);
-                                out.print(duration);
+                               // long endTime = System.nanoTime(); 
+                                //long duration = (endTime - startTime);
+                                //out.print(duration);
                                 %>
                             </div>
                         </div>
