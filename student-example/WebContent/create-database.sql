@@ -129,9 +129,13 @@ CREATE TABLE sales (
 
 create table FullProductHistory as
 (
-SELECT sales.uid, users.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category, states.name
+SELECT sales.uid, users.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, categories.id as category, states.name as state
 FROM users, products, sales, categories, states	
 WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = products.cid AND users.state = states.id
 GROUP BY users.name, sales.uid, products.name, categories.id, states.name
 ORDER BY SUM(sales.price*sales.quantity) DESC 
 );
+CREATE INDEX usernameIndex ON fullProductHistory(name);
+CREATE INDEX productNameIndex ON fullProductHistory(productName);
+CREATE INDEX totalIndex ON fullProductHistory(total);
+CREATE INDEX stateIndex ON fullProductHistory(state);

@@ -40,6 +40,9 @@
 	  
 	  Statement dropTempStatement2 = conn.createStatement();
  	  dropTempStatement2.executeUpdate("drop table if exists productSort");
+ 	  
+ 	  Statement dropTempStatement3 = conn.createStatement();
+ 	  dropTempStatement3.executeUpdate("drop table if exists middleTable");
 	  
 	  if (request.getParameter("productOffset") == null) {
 		  productOffset = 0;
@@ -118,76 +121,98 @@
 	 	category = request.getParameter("category");
 	  }
 	  
+	  String productNameOrTopK = "";
+	  if(filter2.equals("Alphabetical"))
+	  {
+		  productNameOrTopK = "productname ASC";
+	  }
+	  else
+	  {
+		  productNameOrTopK = "SUM(total) DESC";
+	  }
+	  
 	  if (category.equals("")) {
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + productOffset+")");
-	  } else if (category.equals("allCategories")) {
+				  "ORDER BY productName ASC LIMIT 10 OFFSET " + productOffset+")");
+	  } else if (category.equals("allCategories")) {  
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + productOffset+")");
+				  "ORDER BY "+productNameOrTopK +"  LIMIT 10 OFFSET " + productOffset+")");
 	  } else {
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory WHERE category = ?) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + productOffset+")");
+				  "ORDER BY "+ productNameOrTopK+ " LIMIT 10 OFFSET " + productOffset+")");
 		  pstmtProducts.setInt(1, Integer.parseInt(request.getParameter("category")));
 		  
 	  }
-	  String nameOrTopK = "name";
 	  // (default state)no filters have been chosen
 	  if(filter1.equals("") && filter2.equals(""))
 	  {
-		  out.print("1");
 		  filter1 ="Customers";
-		  filter2 ="Top-K";
+		  filter2 ="Alphabetical";
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + custStateOffset +")");
+				  "ORDER BY name ASC LIMIT 20 OFFSET " + custStateOffset +")");
 	  } //(customer or state) has been chosen
 	  else if(filter1.equals("Customers") && filter2.equals("Alphabetical"))
 	  {
-		  out.print("2");
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY name ASC LIMIT 10 OFFSET " + custStateOffset +")");	  
+				  "ORDER BY name ASC LIMIT 20 OFFSET " + custStateOffset +")");	  
 	  }// (customer or state) and (alphabetical or top-k) has been chosen
 	  else if(filter1.equals("Customers") && filter2.equals("Top-K"))
 	  {
-		  out.print("3");
-		  nameOrTopK = "sum";
 		  pstmtCustStates = conn.prepareStatement("create temporary table customerSort as (SELECT name, sum(total) " +
 				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
 				  "GROUP BY name "+
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + custStateOffset+")");
+				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET " + custStateOffset+")");
 	  } //(alphabetical or top-k) has been chosen
 	  else if(filter1.equals("States") && filter2.equals("Alphabetical"))
 	  {
-		  out.print("4");
 		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
 				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
 				  "GROUP BY state "+
-				  "ORDER BY state ASC LIMIT 10 OFFSET " + custStateOffset+")");
+				  "ORDER BY state ASC LIMIT 20 OFFSET " + custStateOffset+")");
 	  }
 	  else if(filter1.equals("States") && filter2.equals("Top-K"))
 	  {
-		  out.print("5");
-		  nameOrTopK = "sum";
 		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT state as name, sum(total) " +
 				  "FROM (SELECT state, total FROM FullProductHistory) as fph "+
 				  "GROUP BY state "+
-				  "ORDER BY SUM(total) DESC LIMIT 10 OFFSET " + custStateOffset+")");
+				  "ORDER BY SUM(total) DESC LIMIT 20 OFFSET " + custStateOffset+")");
 	  }
 	  
+	  
+	  //create the left and top tables
 	  pstmtCustStates.executeUpdate();
 	  pstmtProducts.executeUpdate();
 	  
+	  //is it state or customer?
+	  String custOrState = "state";
+	  String custOrStateTable = "stateSort";
+	  if(filter1.equals("Customers") || filter1.equals(""))
+	  {
+		  custOrState = "name";
+		  custOrStateTable = "customerSort";
+	  }
+	  //create middleTable
+	  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
+					  "select "+custOrState+" as name, productname, total from FullProductHistory "+
+					  "WHERE "+custOrState+" in (SELECT "+custOrState+" from "+custOrStateTable+") "+
+					  "AND productname in (SELECT productname from productSort) "+
+					  "order by productname);");
+	  
+	  pstmtMiddleTable.executeUpdate();
+	  
 	  Statement custStateStatement =  conn.createStatement();
 	  Statement productStatement = conn.createStatement();
+	  Statement middleStatement = conn.createStatement();
 	  
 	  String StateOrCustomer = "States";
 	  if(filter1.equals("Customers") || filter1.equals(""))
@@ -202,9 +227,17 @@
 	  rsProducts =  productStatement.executeQuery("select * from productSort");
 	  
 	  String[] productNameSort = new String[10];
-	  String[] custStateNameSort = new String[10];
+	  String[] custStateNameSort = new String[20];
 	  int[] productTotalCostSort = new int[10];
-	  int[] custStateTotalCostSort = new int[10];
+	  int[] custStateTotalCostSort = new int[20];
+	  int[][] middleTable = new int[10][20];
+	  for(int i = 0; i < 10; i++)
+	  {
+		  for(int j = 0; j < 20; j++)
+		  {
+			  middleTable[i][j] = 0;
+		  }
+	  }
 	  
 	  int productCounter = 0;
 	  while(rsProducts.next())
@@ -220,6 +253,39 @@
 			custStateTotalCostSort[customerCounter] = rsCustStates.getInt("sum");
 			customerCounter++;
 		}
+		
+		
+		for(int k = 0; k < customerCounter; k++ )
+		{
+			rsMiddle = middleStatement.executeQuery("select name, productname, sum(total) as total from middleTable where name = '" + custStateNameSort[k]+"'"+" group by name, productname");
+			int middleProductCounter = 0;
+			while (rsMiddle.next()) 
+			{ 
+				String name = rsMiddle.getString("name");
+				String productName =rsMiddle.getString("productname");
+				int total =rsMiddle.getInt("total");
+				//out.print("name: "+name+" , productName:"+ productName+", total:"+total+"<br>");
+
+				while(middleProductCounter < productCounter)
+				{
+					if(productNameSort[middleProductCounter].equals(productName))
+					{
+						middleTable[middleProductCounter][k] = total;
+						//out.print("productNameSort["+middleProductCounter+"]="+productNameSort[middleProductCounter]+" !middleTable["+middleProductCounter+"]["+k+"] = "+total+"<br>");
+					}
+					else
+					{
+						//out.print("productNameSort["+middleProductCounter+"]="+productNameSort[middleProductCounter]+"@middleTable["+middleProductCounter+"]["+k+"] = "+0+"<br>");
+						middleTable[middleProductCounter][k] = 0;
+						
+					}
+					middleProductCounter++;
+				}	
+					
+				
+			} 
+		}
+		
 	  
 	%>     
 	<table class="table table-border">
@@ -228,10 +294,16 @@
 		<%
 		int i = 0;
 		while (i < productCounter) { 
-			out.print("<td>"+productNameSort[i]+"<br>$"+productTotalCostSort[i]+"</td>");
+			int length = productNameSort[i].length();
+			if(length > 10)
+			{
+				length = 10;
+			}
+			out.print("<th>"+productNameSort[i].substring(0,length)+"<br>($"+productTotalCostSort[i]+")</th>");
 			i++;
 		} %>
 		
+
 		<%
 		//productCounter >= 10 means you loaded 10 products and if productOFfset+10 != productCount then there are more products to display
 		if(productCounter >= 10 && (productOffset+10) != productCount) 
@@ -245,6 +317,7 @@
 			        <input type="hidden" value="<%=category%>" name="category"></input>
 			        <input type="hidden" value="<%=productCount%>" name="productCount"></input>
 			        <input type="hidden" value="<%=custStateCount%>" name="custStateCount"></input>
+			        <input type="hidden" value="clicked" name="next10"></input>
 			        <input type="submit" value="Next 10 Products">
 					</form>
 				</td>
@@ -254,28 +327,37 @@
 			int j = 0;
 			while(j < customerCounter)
 			{
-				out.print("<tr><td>"+custStateNameSort[j]+"<br>$"+custStateTotalCostSort[j]+"</td></tr>");
+				out.print("<tr>");
+				out.print("<th>"+custStateNameSort[j]+"<br>($"+custStateTotalCostSort[j]+")</th>");
+				for(int a = 0; a < productCounter; a++)
+				{
+					out.print("<td>$"+middleTable[a][j]+"</td>");	
+				}
+				out.print("</tr>");
 				j++;
 			}		
 		%>
 		
-		<%if(customerCounter >= 10 && (custStateOffset+10) != custStateCount ) 
+		
+		<%if(customerCounter >= 20 && (custStateOffset+20) != custStateCount ) 
 					{ %>
 				<tr>
 					<td>
 						<form action="analytics" method="GET">
 						<input type="hidden" value="<%=productOffset%>" name="productOffset"></input>
-				        <input type="hidden" value="<%=custStateOffset+10%>" name="custStateOffset"></input>
+				        <input type="hidden" value="<%=custStateOffset+20%>" name="custStateOffset"></input>
 				        <input type="hidden" value="<%=filter1%>" name="filter1"></input>
 				        <input type="hidden" value="<%=filter2%>" name="filter2"></input>
 				        <input type="hidden" value="<%=category%>" name="category"></input>
 				        <input type="hidden" value="<%=productCount%>" name="productCount"></input>
 				         <input type="hidden" value="<%=custStateCount%>" name="custStateCount"></input>
-				        <input type="submit" value="Next 10 <%=StateOrCustomer%>">
+				         <input type="hidden" value="clicked" name="next10"></input>
+				        <input type="submit" value="Next 20 <%=StateOrCustomer%>">
 						</form>
 					</td>
 				</tr>
 		<% } %>
+
 	</table>
 				
 <%-- -------- Close Connection Code -------- --%>

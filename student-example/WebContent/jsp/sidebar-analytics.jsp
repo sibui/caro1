@@ -1,7 +1,7 @@
 <div class="panel panel-default">
 	<div class="panel-body">
 		<div class="bottom-nav">
-            <h4> Options </h4>
+            
             <!-- Put your part 2 code here -->
             <%@ page import="java.sql.*"%>
                                 <%-- -------- Open Connection Code -------- --%>
@@ -16,7 +16,8 @@
 	                                int productCount = -1;
 	                                int custStateCount = -1;
 	                                
-	 		                    	try {
+	                                
+	 		                    	try {					                
 	 		                           // Registering Postgresql JDBC driver with the DriverManager
 	 		                           Class.forName("org.postgresql.Driver");
 
@@ -25,7 +26,7 @@
 	 		                               "jdbc:postgresql://localhost/cse135?" +
 	 		                               "user=postgres&password=postgres");
 	 		                           
-	 		                        
+	 		                          Statement statement = conn.createStatement();
 	 		                    %>
 	 		                    
 	 		                    <%
@@ -82,6 +83,11 @@
 	 		                   		}
 	 		                    %>
                                 <table style="font-size: 12px;">
+									<%
+									if(request.getParameter("next10") ==null)
+									{
+									%>
+									<h4> Options </h4>
             						<form action="analytics" method="GET">
             						<input type="hidden" value="0" name="productOffset"></input>
             						<input type="hidden" value="0" name="custStateOffset"></input>
@@ -89,8 +95,26 @@
 		                            <tr>
 						                <td>Customers or State:</td>
 						                <td><select id="filter1" name="filter1">
-						                		<option selected="selected">Customers</option>
-						                        <option>States</option>
+						                		<option 
+						                		<%
+						                		if(request.getParameter("filter1") != null && request.getParameter("filter1").equals("Customers"))
+						                		{
+						                		%>
+						                			selected="selected"
+						                		<%
+						                		}
+						                		%>
+						                		>Customers</option>
+						                        <option
+						                        <%
+						                		if(request.getParameter("filter1") != null && request.getParameter("filter1").equals("States"))
+						                		{
+						                		%>
+						                			selected="selected"
+						                		<%
+						                		}
+						                		%>
+						                        >States</option>
 						                	</select>
 						                </td>
 		            				</tr>
@@ -98,8 +122,25 @@
 		            					<td>Alphabetical or Top-K:</td>
 		            					<td>
 		            						<select id="filter2" name="filter2">
-		            							<option>Alphabetical</option>
-		            							<option>Top-K</option>
+		            							<option
+		            							<%
+						                		if(request.getParameter("filter2") != null && request.getParameter("filter2").equals("Alphabetical"))
+						                		{
+						                		%>
+						                			selected="selected"
+						                		<%
+						                		}
+						                		%>>Alphabetical</option>
+		            							<option
+		            							<%
+						                		if(request.getParameter("filter2") != null && request.getParameter("filter2").equals("Top-K"))
+						                		{
+						                		%>
+						                			selected="selected"
+						                		<%
+						                		}
+						                		%>
+		            							>Top-K</option>
 		            						</select>
 		            					</td>
 		            				</tr>
@@ -109,15 +150,40 @@
 			            				<td>
 			 					        	<select name="category">
 			 					        		<% 
-			 					                	Statement statement = conn.createStatement();
+			 					                	statement = conn.createStatement();
 		
 				 		                    		rsCategory1 = statement.executeQuery("select categories.name, categories.id from categories");
+												
+												boolean isAllCategories = false;
+														if(request.getParameter("category") != null && (request.getParameter("category").equals("allCategories")||request.getParameter("category").equals("")))
+								                		{
+															isAllCategories = true;
+								                		}
 												%>
-												<option value="allCategories">All categories</option>
+												
+												<option value="allCategories"
 												<%
-													while(rsCategory1.next()) {			   
+												if(isAllCategories)
+												{
+												%>
+													selected="selected"
+												<%
+												}
+												%>
+												>All categories</option>
+												<%
+													while(rsCategory1.next()) {
 												%>     	
-				 					        		<option value="<%=rsCategory1.getInt("id")%>"><%=rsCategory1.getString("name")%></option>
+				 					        		<option value="<%=rsCategory1.getInt("id")%>"
+    								            <%
+						                		if(!isAllCategories && request.getParameter("category") != null && Integer.parseInt(request.getParameter("category"))==(rsCategory1.getInt("id")))
+						                		{
+						                		%>
+						                			selected="selected"
+						                		<%
+						                		}
+						                		%>
+				 					        		><%=rsCategory1.getString("name")%></option>
 				 					        	<%
 				 					        		} 
 				 					        	%>
@@ -129,14 +195,18 @@
 	        						<td><input type="submit" value="Run Query"></td>
             					</tr>
 	        						</form>
+	        					 <!-- closing bracket for if statement that checks if you clicked next 10 -->
+	        					<%
+									}
+	        					%>
             					<%-- -------- Close Connection Code -------- --%>
 					            <%
 					                // Close the ResultSet
-					                rsCategory1.close();
+					                if(rsCategory1 != null) rsCategory1.close();
 					            	if(rsProductCount != null) rsProductCount.close();
 					
 					                // Close the Statement
-					                statement.close();
+					                if(statement != null) statement.close();
 					                if(statementProductCount != null) statementProductCount.close();
 					
 					                // Close the Connection
@@ -145,11 +215,8 @@
 					            	
 					                // Wrap the SQL exception in a runtime exception to propagate
 					                // it upwards
-					                
-					                //throw new RuntimeException(e);
-					                
-					            	String redirectURL = "unsuccessful.html";
-					                response.sendRedirect(redirectURL);
+					                throw new RuntimeException(e);
+					             
 					            }%>
 		            			</table>
 		            			
