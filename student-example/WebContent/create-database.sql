@@ -135,6 +135,8 @@ WHERE sales.uid = users.id AND sales.pid = products.id AND categories.id = produ
 GROUP BY users.name, sales.uid, products.name, categories.id, states.name
 ORDER BY SUM(sales.price*sales.quantity) DESC 
 );
-CREATE INDEX usernameIndex ON fullProductHistory(name);
+
+CREATE INDEX nameOrStateIndex ON fullProductHistory(name);
 CREATE INDEX productNameIndex ON fullProductHistory(productName);
-CREATE INDEX stateIndex ON fullProductHistory(state);
+CREATE INDEX uidIndex on sales(uid);
+CREATE INDEX pidIndex on sales(pid);

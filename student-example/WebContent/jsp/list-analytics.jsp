@@ -236,12 +236,30 @@
 	  }
 	 
 	  
-
+	  //create FullProductHistory and its indices
+	  long startTime = System.nanoTime(); 
+                                
 	  pstmtFullProductHistory.executeUpdate();
+	  long endTime = System.nanoTime(); 
+      long duration = (endTime - startTime);
+      out.print("time of fullProductHistory:"+ duration);
+	/*  Statement createIndexStatement = conn.createStatement();
+	  dropTempStatement4.executeUpdate("CREATE INDEX nameOrStateIndex ON fullProductHistory(name)");	  
+	  Statement createIndexStatement1 = conn.createStatement();
+	  dropTempStatement4.executeUpdate("CREATE INDEX productNameIndex ON fullProductHistory(productName)");*/
 
 	  //create the left and top tables
+	  startTime = System.nanoTime();
 	  pstmtCustStates.executeUpdate();
+	  endTime = System.nanoTime();
+	  duration = (endTime-startTime);
+	  out.print("time of left Table:"+ duration);
+	  
+	  startTime = System.nanoTime();
 	  pstmtProducts.executeUpdate();
+	  endTime = System.nanoTime();
+	  duration = (endTime-startTime);
+	  out.print("time of top Table:"+ duration);
 	  
 	  
 	  //is it state or customer?
@@ -270,7 +288,13 @@
 	  pstmtMiddleTable.setString(1,custOrState);
 	  pstmtMiddleTable.setString(2,custOrState);
 	  pstmtMiddleTable.setString(3,custOrState);
+	  startTime = System.nanoTime();
 	  pstmtMiddleTable.executeUpdate();
+	  endTime = System.nanoTime();
+	  duration = (endTime-startTime);
+	  out.print("time of middle Table:"+ duration);
+	  
+	  
 	  
 	  Statement custStateStatement =  conn.createStatement();
 	  Statement productStatement = conn.createStatement();
