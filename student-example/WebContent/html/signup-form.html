@@ -1,14 +1,14 @@
-
 <div class="container">
-    <form action="signup" method="post">
+    <form action="signup" method="post" onsubmit="change();">
         <table align="center">
             <tr>
-                <td>Name:</td>
+                <td><p id="nameP"></p>Name:</td>
                 <td><input type="text" id="name" name="name"></td>
             </tr>
             <tr>
                 <td>Role:</td>
                 <td><select id="role" name="role">
+                		<option value=""></option>
                         <option>owner</option>
                         <option>customer</option>
                 </select></td>
@@ -20,6 +20,7 @@
             <tr>
                 <td>State:</td>
                 <td><select id="state" name="state">
+                		<option value=""></option>
                         <option>Alabama</option>
                         <option>Alaska</option>
                         <option>Arizona</option>
@@ -78,3 +79,40 @@
         </table>
     </form>
 </div>
+
+<script type="text/javascript">
+	function change(){ 
+		var name = document.getElementById('name').value;
+		var role = document.getElementById('role').selectedIndex;
+		var age = document.getElementById('age').value;
+		var state = document.getElementById('state').selectedIndex;
+		
+		 var1 = true;
+		 var2 = true;
+		 var3 = true;
+		 var4 = true;
+
+
+		if(name == ""){
+			var1 = false;
+			document.getElementById("nameP").innerHTML ="INVALID NAME";
+			alert("Name not provided");
+		}
+		
+		if(age == ""){
+				var2 = false;
+				alert("Age not provided");
+		}
+		
+		if(role == ""){
+			var3 = false;
+			alert("Role not provided");
+		}
+		
+		if(state == ""){
+			var4 = false;
+			alert("State not provied");
+		}
+	
+	}
+</script>
