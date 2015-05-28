@@ -1,13 +1,22 @@
+<!-- Change for Project 3 -->
+
 <div class="container">
-    <form action="signup" method="post" onsubmit="change();">
+    <form  action="signup" method="post" onsubmit="return change()">
+		<input type="hidden" name="action" value="signup">
         <table align="center">
             <tr>
-                <td><p id="nameP"></p>Name:</td>
-                <td><input type="text" id="name" name="name"></td>
+                <td>Name:</td>
+                
+                <td>
+                	<p style="color:red;" id="nameP"></p>
+                	<input type="text" id="name" name="name"></td>       
             </tr>
             <tr>
                 <td>Role:</td>
-                <td><select id="role" name="role">
+                <td>
+                <p style="color:red;" id="roleP"></p>
+               
+                <select id="role" name="role">
                 		<option value=""></option>
                         <option>owner</option>
                         <option>customer</option>
@@ -15,11 +24,16 @@
             </tr>
             <tr>
                 <td>Age:</td>
-                <td><input type="text" id="age" name="age"></td>
+                <td>
+                	<p style="color:red;" id="ageP"></p>
+                	<input type="text" id="age" name="age"></td>
             </tr>
             <tr>
                 <td>State:</td>
-                <td><select id="state" name="state">
+                <td>
+              		<p style="color:red;" id="stateP"></p>
+            
+                	<select id="state" name="state">
                 		<option value=""></option>
                         <option>Alabama</option>
                         <option>Alaska</option>
@@ -95,24 +109,48 @@
 
 		if(name == ""){
 			var1 = false;
-			document.getElementById("nameP").innerHTML ="INVALID NAME";
-			alert("Name not provided");
+			document.getElementById("nameP").innerHTML = "Name not provided.";
+		}
+		else{
+			var1 = true;
+			document.getElementById("nameP").innerHTML = "";
 		}
 		
 		if(age == ""){
-				var2 = false;
-				alert("Age not provided");
+			var2 = false;
+			document.getElementById("ageP").innerHTML = "Age not provided.";
+		}
+		else{
+			var2 = true;
+			document.getElementById("ageP").innerHTML = "";
 		}
 		
 		if(role == ""){
 			var3 = false;
-			alert("Role not provided");
+			document.getElementById("roleP").innerHTML = "Role not provided.";
+		}
+		else{
+			var3 = true;
+			document.getElementById("roleP").innerHTML = "";
+
 		}
 		
 		if(state == ""){
 			var4 = false;
-			alert("State not provied");
+			document.getElementById("stateP").innerHTML = "State not provided.";
 		}
-	
+		else{
+			var4 = true;
+			document.getElementById("stateP").innerHTML = "";
+		}
+		
+		if(var1 == false || var2 == false || var3 == false || var4 == false){
+			return false;	
+		}
+		else{
+			return true;
+		}
 	}
+	
+	
 </script>
