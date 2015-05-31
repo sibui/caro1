@@ -62,24 +62,8 @@
 			                    		
 			                    		if(request.getParameter("action") != null)
 			                    		{
-			                    			if(((String)request.getParameter("filter1")).equals("States"))
-			                    			{
-			                    				custStateCount = 50;    				
-			                    			}
-			                    			else
-			                    			{
-					                    		rsCustState = statementCustStateCount.executeQuery("select count(id) from users");
-					                    		rsCustState.next();
-					                    		custStateCount = rsCustState.getInt("count");
-			                    			}
-			                    		}
-			                    		else
-			                    		{
-			                    			rsCustState = statementCustStateCount.executeQuery("select count(id) from users");
-				                    		rsCustState.next();
-				                    		custStateCount = rsCustState.getInt("count");
-			                    		}
-			                    		application.setAttribute("custStateCount", custStateCount);		                
+			                    			application.setAttribute("custStateCount", 50);		                
+	 		                   			}
 	 		                   		}
 	 		                    %>
                                 <table style="font-size: 12px;">
@@ -92,58 +76,6 @@
             						<input type="hidden" value="0" name="productOffset"></input>
             						<input type="hidden" value="0" name="custStateOffset"></input>
             						<input type="hidden" value="search" name="action"></input>
-		                            <tr>
-						                <td>Customers or State:</td>
-						                <td><select id="filter1" name="filter1">
-						                		<option 
-						                		<%
-						                		if(request.getParameter("filter1") != null && request.getParameter("filter1").equals("Customers"))
-						                		{
-						                		%>
-						                			selected="selected"
-						                		<%
-						                		}
-						                		%>
-						                		>Customers</option>
-						                        <option
-						                        <%
-						                		if(request.getParameter("filter1") != null && request.getParameter("filter1").equals("States"))
-						                		{
-						                		%>
-						                			selected="selected"
-						                		<%
-						                		}
-						                		%>
-						                        >States</option>
-						                	</select>
-						                </td>
-		            				</tr>
-		            				<tr>
-		            					<td>Alphabetical or Top-K:</td>
-		            					<td>
-		            						<select id="filter2" name="filter2">
-		            							<option
-		            							<%
-						                		if(request.getParameter("filter2") != null && request.getParameter("filter2").equals("Alphabetical"))
-						                		{
-						                		%>
-						                			selected="selected"
-						                		<%
-						                		}
-						                		%>>Alphabetical</option>
-		            							<option
-		            							<%
-						                		if(request.getParameter("filter2") != null && request.getParameter("filter2").equals("Top-K"))
-						                		{
-						                		%>
-						                			selected="selected"
-						                		<%
-						                		}
-						                		%>
-		            							>Top-K</option>
-		            						</select>
-		            					</td>
-		            				</tr>
 		            				<!-- Start of dropdown for categories -->
 		            				<tr>
 			            				<td>Category</td>
@@ -190,7 +122,7 @@
 			 				        		</select>
 		 				        		</td>
 	            					<!-- End of dropdown -->
-            					</tr>
+            						</tr>
             					<tr>
 	        						<td><input type="submit" value="Run Query"></td>
             					</tr>

@@ -126,5 +126,11 @@ CREATE TABLE sales (
     price       INTEGER NOT NULL
 );
 
+create table FullProductHistory as(SELECT sales.uid, states.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, products.id as category
+				  FROM users, products, sales, states
+				  WHERE sales.uid = users.id AND sales.pid = products.id AND users.state = states.id
+				  GROUP BY states.name, sales.uid, products.name, products.id
+				  ORDER BY SUM(sales.price*sales.quantity) DESC);
+
 
 
