@@ -88,7 +88,7 @@
                 </select></td>
             </tr>
             <tr>
-                <td><input type="submit" value="Signup"></td>
+                <td><input type="submit" value="Signup" id="submit"></td>
             </tr>
         </table>
     </form>
@@ -152,5 +152,27 @@
 		}
 	}
 	
+	function checkUsername()
+	{
+		var xmlHttp;
+		xmlHttp = new XMLHttpRequest();
 	
+		var responseHandler = function()
+		{
+			if (xmlHttp.readyState != 4) return;
+			
+			if (xmlHttp.status != 200) {
+				alert("HTTP status is " + xmlHttp.status + " instead of 200");
+				return;
+			};
+			
+			document.getElementById("name").innerHTML = xmlHttp.responseText;
+			
+		}
+	
+	  	xmlHttp.onreadystatechange = responseHandler;
+
+	  	xmlHttp.open("GET","username.jsp",true);
+	  	xmlHttp.send();
+	}
 </script>
