@@ -36,16 +36,15 @@
 	 	pstmt = conn.prepareStatement("select * from users where name=?");
 	 	pstmt.setString(1, name);
 	 	result = pstmt.executeQuery();
-	 	result.next();
 	 	String returnResult = "";
-	 	if(result != null)
+	 	if(result.next())
 	 	{
 	 		//username already in database, return error
 	 		returnResult = "this user name is already taken";
-	 		
 	 	}
 	 	//return the result
-	 	out.write(returnResult);
+	 	out.print(returnResult);
+	 	out.flush();
 	 %>
 	 <%-- -------- Close Connection Code -------- --%>
 	 <%

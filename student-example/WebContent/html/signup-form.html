@@ -1,7 +1,7 @@
 <!-- Change for Project 3 -->
 
 <div class="container">
-    <form  action="signup" method="post" onsubmit="return change()">
+    <form action="signup" method="post" onsubmit="return change()">
 		<input type="hidden" name="action" value="signup">
         <table align="center">
             <tr>
@@ -112,7 +112,31 @@
 			document.getElementById("nameP").innerHTML = "Name not provided.";
 		}
 		else{
-			var1 = true;
+			// check if username is already taken
+			var xmlHttp;
+			xmlHttp = new XMLHttpRequest();
+		
+			var responseHandler = function()
+			{
+				if (xmlHttp.readyState == 4) {
+					document.getElementById("nameP").innerHTML = xmlHttp.responseText;
+					console.log(xmlHttp.responseText);
+// 					if (xmlHttp.status == 200) {
+// 						return;
+// 					}
+// 					else {
+// 						alert("HTTP status is " + xmlHttp.status + " instead of 200");
+// 						return false;
+// 					}
+				}
+			}
+	
+		  	xmlHttp.onreadystatechange = responseHandler;
+	
+		  	xmlHttp.open("GET","/student-example/jsp/username.jsp?name="+name,true);
+		  	xmlHttp.send(null);
+			
+		  	var1 = false;
 			document.getElementById("nameP").innerHTML = "";
 		}
 		
@@ -148,31 +172,7 @@
 			return false;	
 		}
 		else{
-			return true;
-		}
-	}
-	
-	function checkUsername()
-	{
-		var xmlHttp;
-		xmlHttp = new XMLHttpRequest();
-	
-		var responseHandler = function()
-		{
-			if (xmlHttp.readyState != 4) return;
-			
-			if (xmlHttp.status != 200) {
-				alert("HTTP status is " + xmlHttp.status + " instead of 200");
-				return;
-			};
-			
-			document.getElementById("name").innerHTML = xmlHttp.responseText;
 			
 		}
-	
-	  	xmlHttp.onreadystatechange = responseHandler;
-
-	  	xmlHttp.open("GET","username.jsp",true);
-	  	xmlHttp.send();
 	}
 </script>
