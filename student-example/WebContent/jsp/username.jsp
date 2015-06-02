@@ -41,12 +41,16 @@
 	 		//username already in database, return error
 	 		returnResult = "this user name is already taken";
 	 	}
+	 	else
+	 	{
+	 		returnResult = "should create this user";
+	 	}
 	 	//return the result
 	 	//out.print(returnResult);
 	 	//out.flush();
 	 	
 	 	JSONObject username = new JSONObject();
-	 	username.put("name", "hi");
+	 	username.put("name", returnResult);
 	 	out.print(username);
 	 	
 	 %>

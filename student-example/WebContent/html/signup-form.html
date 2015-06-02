@@ -123,7 +123,14 @@
 					var arr = JSON.parse(xmlHttp.responseText);
 					console.log(arr.name);
 					document.getElementById("nameP").innerHTML = arr.name;
-					return false;
+					
+					if (arr.name=="should create this user") {
+						var1 = true;
+					} else {
+						var1 = false;
+					}
+					
+					
 // 					if (xmlHttp.status == 200) {
 // 						return;
 // 					}
@@ -139,9 +146,9 @@
 		  	xmlHttp.open("GET","/student-example/jsp/username.jsp?name="+name,true);
 		  	xmlHttp.send(null);
 			
-		  	var1 = false;
 			document.getElementById("nameP").innerHTML = "";
 		}
+		
 		
 		if(age == ""){
 			var2 = false;
@@ -175,7 +182,7 @@
 			return false;	
 		}
 		else{
-			
+			return true;
 		}
 	}
 </script>
