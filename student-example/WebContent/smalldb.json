@@ -1,5 +1,5 @@
 {
-    "database_name" : "cse135",
+    "database_name" : "cse135_small",
     "user_name" : "postgres",
     "password" : "postgres",
     "chunks" : 10,

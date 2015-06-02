@@ -34,20 +34,25 @@
 	 	Statement userStatement = conn.createStatement();
 	 	pstmt = conn.prepareStatement("select * from users where name=?");
 	 	pstmt.setString(1, name);
-	 	result = pstmt.executeQuery();
-	 	String returnResult = "";
-	 	if(result.next())
+	 	String returnResult = "";	 
+	 	if(!name.equals(""))
 	 	{
-	 		//username already in database, return error
-	 		returnResult = "this user name is already taken";
+		 	result = pstmt.executeQuery();
+	
+		 	if(result.next())
+		 	{
+		 		//username already in database, return error
+		 		returnResult = "this user name is already taken";
+		 	}
+		 	else
+		 	{
+		 		returnResult = "name provided";
+		 	}
 	 	}
 	 	else
 	 	{
-	 		returnResult = "should create this user";
+	 		returnResult = "blank";
 	 	}
-	 	//return the result
-	 	//out.print(returnResult);
-	 	//out.flush();
 	 	
 	 	JSONObject username = new JSONObject();
 	 	username.put("name", returnResult);
@@ -57,15 +62,15 @@
 
 	 <%-- -------- Close Connection Code -------- --%>
 	 <%
+	 		
 	    // Close the ResultSets
-	    result.close();
-		//rsMiddle.close();
+	    if(result != null) result.close();
 	
 	    // Close the Statements
-	    pstmt.close();
+	    if(pstmt != null) pstmt.close();
 	
 	    // Close the Connection
-	    conn.close();
+	    if (conn != null) conn.close();
 	    } catch (SQLException e) {
 		
 	    // Wrap the SQL exception in a runtime exception to propagate
