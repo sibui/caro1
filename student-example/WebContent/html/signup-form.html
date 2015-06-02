@@ -119,8 +119,11 @@
 			var responseHandler = function()
 			{
 				if (xmlHttp.readyState == 4) {
-					document.getElementById("nameP").innerHTML = xmlHttp.responseText;
-					console.log(xmlHttp.responseText);
+					//var xmlDoc = xmlHttp.responseXML.documentElement;
+					var arr = JSON.parse(xmlHttp.responseText);
+					console.log(arr.name);
+					document.getElementById("nameP").innerHTML = arr.name;
+					return false;
 // 					if (xmlHttp.status == 200) {
 // 						return;
 // 					}

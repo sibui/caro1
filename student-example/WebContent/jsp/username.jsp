@@ -1,10 +1,9 @@
-<%@ page contentType="text/html; charset=utf-8" language="java"%>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<jsp:include page="/html/signup-form.html" />
-</head>
-<body>
+<%@page import="org.json.*"%> 
+<% response.setContentType("text/JSON"); %>
+<%--  <% response.setContentType("text/xml"); %> --%>
+<%-- <%@ page contentType="text/xml; charset=utf-8" language="java"%> --%>
 	<%
+	
 		String name = null;
 		try {
 			name = request.getParameter("name");
@@ -43,9 +42,15 @@
 	 		returnResult = "this user name is already taken";
 	 	}
 	 	//return the result
-	 	out.print(returnResult);
-	 	out.flush();
+	 	//out.print(returnResult);
+	 	//out.flush();
+	 	
+	 	JSONObject username = new JSONObject();
+	 	username.put("name", "hi");
+	 	out.print(username);
+	 	
 	 %>
+
 	 <%-- -------- Close Connection Code -------- --%>
 	 <%
 	    // Close the ResultSets
@@ -64,5 +69,3 @@
 	    throw new RuntimeException(e);
 	    } 
 	%>
-</body>
-</html>
