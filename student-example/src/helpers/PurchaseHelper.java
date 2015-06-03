@@ -7,16 +7,31 @@ import java.sql.Statement;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.*;
+
 public class PurchaseHelper {
 
-    public static String purchaseCart(ShoppingCart cart, Integer uid) {
+    public static JSONObject purchaseCart(ShoppingCart cart, Integer uid) {
         Connection conn = null;
         Statement stmt = null;
+        JSONObject returnResultJ = new JSONObject();
+        JSONArray logArray = new JSONArray();
+        JSONObject log = new JSONObject();
+        JSONObject returnMessage = new JSONObject();
+        String returnMsg = "";
         try {
             try {
                 conn = HelperUtils.connect();
             } catch (Exception e) {
-                return HelperUtils.printError("Internal Server Error. This shouldn't happen.");
+            	JSONObject error = new JSONObject();
+            	returnMsg = HelperUtils.printError("Internal Server Error. This shouldn't happen.");
+            	try {
+					error.put("error", returnMsg);
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+                return error;
             }
             stmt = conn.createStatement();
             for (int i = 0; i < cart.getProducts().size(); i++) {
@@ -32,14 +47,51 @@ public class PurchaseHelper {
                 int cart_id = rs.getInt(1);
                 String SQL_3 = "INSERT INTO sales (uid, pid, cart_id, quantity, price) VALUES(" + uid + ",'"
                         + p.getId() + "','" + cart_id + "','" + quantity + "', " + p.getPrice() + ");";
+                try {
+					log.put("pid", p.getId());
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                try {
+					log.put("cost", p.getPrice()*quantity);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                logArray.put(log);
+                try {
+                	//put logArray into the larger JSON Object
+					returnResultJ.put("log",logArray);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 stmt.execute(SQL_3);
                 conn.commit();
                 conn.setAutoCommit(true);
             }
             cart.empty();
-            return HelperUtils.printSuccess("Purchase successful!");
+            //put return message into JSON object
+            returnMsg = HelperUtils.printSuccess("Purchase successful!");
+            try {
+				returnResultJ.put("returnMessage", returnMsg);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            //return HelperUtils.printSuccess("Purchase successful!");
+            return returnResultJ;
         } catch (SQLException e) {
-            return HelperUtils.printError("Oops! Looks like the product you want to buy is no longer available...");
+        	returnMsg = HelperUtils.printError("Oops! Looks like the product you want to buy is no longer available...");
+        	try {
+				returnResultJ.put("returnMessage", returnMsg);
+			} catch (JSONException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+            //return HelperUtils.printError("Oops! Looks like the product you want to buy is no longer available...");
+        	return returnResultJ;
         } finally {
             try {
                 stmt.close();

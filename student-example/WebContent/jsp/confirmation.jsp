@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java" import="helpers.*"%>
+<%@page import="org.json.*"%> 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <jsp:include page="/html/head.html" />
@@ -44,7 +45,14 @@
                                 	if (nameNotNull) {
                                 		ShoppingCart cart = PurchaseHelper.obtainCartFromSession(session);
                                         Integer uid = LoginHelper.obtainUserFromSession(session);
-                                	    out.println(PurchaseHelper.purchaseCart(cart, uid));
+                                        
+                                	    JSONObject result = PurchaseHelper.purchaseCart(cart, uid);
+                                	    out.print(result);
+                                        //out.println(PurchaseHelper.purchaseCart(cart, uid));
+                                	    
+                                	    if (application.getAttribute("log") != null) {
+                                	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
+                                	    }
                                 	} else {
                                 %>
                                 <div class="alert alert-info">

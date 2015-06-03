@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"%>
+<%@page import="org.json.*"%> 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <jsp:include page="/html/head.html" />
@@ -8,7 +9,9 @@
     String role = (String) session.getAttribute("role");
     boolean roleIsOwner = (role != null) ? role
             .equalsIgnoreCase("owner") : false;
-            
+    JSONObject result = (JSONObject)(application.getAttribute("log"));
+    //String tester = result.toString();
+    out.print(result);
            // long startTime = System.nanoTime();     
 %>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">

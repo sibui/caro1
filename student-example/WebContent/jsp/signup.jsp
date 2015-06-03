@@ -1,4 +1,13 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"%>
+<%@page import="org.json.*"%> 
+<%
+	if (application.getAttribute("log") == null) {
+		JSONObject log = new JSONObject();
+		log.put("test", "value");
+		application.setAttribute("log", log);
+		application.setAttribute("logNumber", 0);
+	}
+%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <jsp:include page="/html/head.html" />
