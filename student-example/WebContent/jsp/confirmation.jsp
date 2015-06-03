@@ -4,11 +4,41 @@
 <head>
 <jsp:include page="/html/head.html" />
 </head>
+<%@ page import="java.sql.*" %>
 <%
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet resultset = null;
+
 	boolean nameNotNull = session.getAttribute("name") != null;
 	String role = (String) session.getAttribute("role");
 	boolean roleIsCustomer = (role != null) ? role
 			.equalsIgnoreCase("customer") : false;
+			
+	
+	
+	try {
+		
+		// Registering Postgresql JDBC driver with the DriverManager
+		Class.forName("org.postgresql.Driver");
+		
+		// Open a connection to the database using DriverManager
+		conn = DriverManager.getConnection(
+			"jdbc:postgresql://localhost/cse135_small?" +
+		    "user=postgres&password=postgres");
+		
+		//log, state, user rentry from shopping guy needed for analytics 
+		String state=""; 
+		if(nameNotNull){ //if its equal to true 
+			pstmt = conn.prepareStatement("select state from users where name =?");
+			pstmt.setString(1, (String)session.getAttribute("name"));
+			resultset = pstmt.executeQuery();
+			resultset.next();
+			state = resultset.getString("state");
+		}
+		
+	
+	
 %>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
     <jsp:include page="/jsp/header.jsp" />
@@ -46,13 +76,34 @@
                                 		ShoppingCart cart = PurchaseHelper.obtainCartFromSession(session);
                                         Integer uid = LoginHelper.obtainUserFromSession(session);
                                         
-                                	    JSONObject result = PurchaseHelper.purchaseCart(cart, uid);
-                                	    out.print(result);
-                                        //out.println(PurchaseHelper.purchaseCart(cart, uid));
+                                	    JSONObject result = PurchaseHelper.purchaseCart(cart, uid); //function call 
+                                	    JSONArray array = result.getJSONArray("log"); // reading the function call 
+                                	    
                                 	    
                                 	    if (application.getAttribute("log") != null) {
                                 	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
+                                	    
+                                	    
+	                                	    JSONArray logArray = new JSONArray();
+
+	                                	    for(int i=0; i < array.length();i++){
+	                                    	    JSONObject obj = new JSONObject();
+												
+	                                	    	int pid = array.getJSONObject(i).getInt("pid");
+	                                	    	int cost = array.getJSONObject(i).getInt("cost");
+	                                	    
+	                                	    
+	                                	    	obj.put("pid",pid);
+	                                	    	obj.put("cost",cost);
+	                                	    	obj.put("state",state);
+	                                	    	
+	                                	    	logArray.put(obj);	
+                                	    	}
+		                           	   		log.put("log",logArray);
+                                	    	out.print(log);
                                 	    }
+                                        
+                                                                       	   
                                 	} else {
                                 %>
                                 <div class="alert alert-info">
@@ -69,5 +120,22 @@
             </div>
         </div>
     </div>
+    <%
+	 		
+	    // Close the ResultSets
+	    if(resultset != null) resultset.close();
+	
+	    // Close the Statements
+	    if(pstmt != null) pstmt.close();
+	
+	    // Close the Connection
+	    if (conn != null) conn.close();
+	    } catch (SQLException e) {
+		
+	    // Wrap the SQL exception in a runtime exception to propagate
+	    // it upwards
+	    throw new RuntimeException(e);
+	    } 
+	%>
 </body>
 </html>

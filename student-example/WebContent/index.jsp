@@ -4,6 +4,26 @@
 <jsp:include page="/html/head.html" />
 </head>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
+	<%@page import="org.json.*"%> 
+	<%
+		if (application.getAttribute("log") == null) {
+			JSONObject log = new JSONObject();
+			JSONObject objElem = new JSONObject();
+			JSONArray arr = new JSONArray();
+			objElem.put("state", -1);
+			objElem.put("pid", -1);
+			objElem.put("cost", -1);
+			objElem.put("logNumber", -1);
+			arr.put(objElem);		
+			log.put("log",arr);
+			out.print(log);
+			
+			application.setAttribute("log", log);
+			application.setAttribute("logNumber", 0);
+			
+			
+		}
+	%>
     <%
     	String name = null;
     	try {
