@@ -12,7 +12,8 @@
     JSONObject result = (JSONObject)(application.getAttribute("log"));
     //String tester = result.toString();
     out.print(result);
-           // long startTime = System.nanoTime();     
+           // long startTime = System.nanoTime();  
+           
 %>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
     <jsp:include page="/jsp/header.jsp" />

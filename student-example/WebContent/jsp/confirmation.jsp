@@ -84,7 +84,6 @@
                                 	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
                                 	    
                                 	    
-	                                	    JSONArray logArray = new JSONArray();
 
 	                                	    for(int i=0; i < array.length();i++){
 	                                    	    JSONObject obj = new JSONObject();
@@ -96,10 +95,9 @@
 	                                	    	obj.put("pid",pid);
 	                                	    	obj.put("cost",cost);
 	                                	    	obj.put("state",state);
-	                                	    	
-	                                	    	logArray.put(obj);	
+	                                	    	//log.
+	                                	 	//log.log.push({"pid": pid, "state": state,"cost":cost,"logNumber":logNumber}); 	
                                 	    	}
-		                           	   		log.put("log",logArray);
                                 	    	out.print(log);
                                 	    }
                                         

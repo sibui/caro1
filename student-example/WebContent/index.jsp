@@ -16,7 +16,6 @@
 			objElem.put("logNumber", -1);
 			arr.put(objElem);		
 			log.put("log",arr);
-			out.print(log);
 			
 			application.setAttribute("log", log);
 			application.setAttribute("logNumber", 0);
