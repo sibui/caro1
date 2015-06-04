@@ -263,6 +263,9 @@
 			        <input type="submit" value="Next 50 Products">
 					</form>
 				</td>
+				<input type="hidden" id="hiddenFphCurrentTime" value="<%=session.getAttribute("fphCurrentTime")%>" method="GET"></>
+				<input type="hidden" id="hiddenFphTime" value="<%=application.getAttribute("fphTime")%>" method="GET"></>
+				
 		<% } %>
 		</tr>
 		<% 
@@ -287,20 +290,36 @@
 		function refresh() {
 			var xmlHttp;
 			xmlHttp = new XMLHttpRequest();
+			var fphCurrentDom = document.getElementById("hiddenFphCurrentTime").value;
+			var fphTimeDom = document.getElementById("hiddenFphTime").value;
+			console.log(fphCurrentDom);
+			console.log(fphTimeDom);
 			var responseHandler = function() {
 				if (xmlHttp.readyState == 4) {
 					var arr = JSON.parse(xmlHttp.responseText);
-
-					console.log(arr);
 					
-					//document.getElementById("refreshButton") = responseText;
-					
+					if(!arr.returnMessage.contains("doNothing")){
+						var stateArray = arr.state;
+						for (i = 0; i < Object.keys(stateArray).length; i++) {
+							var stateKey = Object.keys(stateArray)[i];
+							for(j=0; j < stateArray[stateKey].length;j++){
+								var costKey = stateArray[stateKey][j].cost;
+								
+							}
+						}
+						
+						//console.log(Object.keys(stateArray).length);
+			
+					//console.log(arr.state);
+					}
 				} 
 			}
-			xmpHttp.onreadystatechange = responseHandler;
-			xmlHttp.open("GET", "/student-example/refresh?fphCurrent="+fphCurrentTime,true);
-			xmpHttp.send(null);
+		
+			xmlHttp.onreadystatechange = responseHandler;
+			xmlHttp.open("GET", "/student-example/jsp/refresh.jsp?fphCurrent="+fphCurrentDom,true);
+			xmlHttp.send(null);
 		}
+		
 	</script>		
 <%-- -------- Close Connection Code -------- --%>
 <%
