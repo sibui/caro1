@@ -231,6 +231,7 @@
 		
 	  
 	%>     
+	<button id="refreshButton" name="refresh" value="refresh" onclick="refresh()">Refresh</button>
 	<table class="table table-border">
 		<tr>
 		<th></th>
@@ -282,6 +283,25 @@
 
 	</table>
 				
+	<script type="text/javascript">
+		function refresh() {
+			var xmlHttp;
+			xmlHttp = new XMLHttpRequest();
+			var responseHandler = function() {
+				if (xmlHttp.readyState == 4) {
+					var arr = JSON.parse(xmlHttp.responseText);
+
+					console.log(arr);
+					
+					//document.getElementById("refreshButton") = responseText;
+					
+				} 
+			}
+			xmpHttp.onreadystatechange = responseHandler;
+			xmlHttp.open("GET", "/student-example/refresh?fphCurrent="+fphCurrentTime,true);
+			xmpHttp.send(null);
+		}
+	</script>		
 <%-- -------- Close Connection Code -------- --%>
 <%
     // Close the ResultSets

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"%>
 <%@page import="org.json.*"%> 
 <%@ page import="java.sql.*" %>
+<%@page import="java.util.Iterator" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <jsp:include page="/html/head.html" />
@@ -20,7 +21,12 @@
     for(int i = 0; i< logArray.length();i++ )
     {
     	JSONObject logObject = logArray.getJSONObject(i);
-    	out.print(logObject.get("state")+"<br>");
+    	//out.print(JSONObject.getNames(logObject)+"<br>");
+    	Iterator<?> keys = logObject.keys();
+    	while( keys.hasNext() ) {
+    	    String key = (String)keys.next();
+    	    out.print(key+"<br>");
+    	}
     	String test = logObject.get("state").toString();
     }
     int fphTime = (Integer)application.getAttribute("fphTime");

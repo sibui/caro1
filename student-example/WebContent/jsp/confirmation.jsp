@@ -113,7 +113,6 @@
 			                                	 		logArray.put(obj); 
 			                                	    	out.println(obj);
 				                                	    log.append("log",obj); 
-
 		                                	    	}
 			                                	    //log.append("log",logArray); 
 		                                	    	out.print(log);
