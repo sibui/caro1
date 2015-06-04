@@ -273,7 +273,7 @@
 			while(j < customerCounter)
 			{
 				out.print("<tr>");
-				out.print("<th>"+custStateNameSort[j]+"<br>($"+custStateTotalCostSort[j]+")</th>");
+				out.print("<th>"+custStateNameSort[j]+"<br>($<i name=\"namecell\" id=\""+custStateNameSort[j]+"\">"+custStateTotalCostSort[j]+"</i>)</th>");
 				for(int a = 0; a < productCounter; a++)
 				{
 					out.print("<td>$"+middleTable[a][j]+"</td>");	
@@ -288,7 +288,11 @@
 				
 	<script type="text/javascript">
 		function refresh() {
+			
 			var xmlHttp;
+			for(a=0; a < document.getElementsByName("namecell").length;a++){
+				document.getElementsByName("namecell")[a].style.color = "black";
+			}
 			xmlHttp = new XMLHttpRequest();
 			var fphCurrentDom = document.getElementById("hiddenFphCurrentTime").value;
 			var fphTimeDom = document.getElementById("hiddenFphTime").value;
@@ -304,20 +308,25 @@
 							var stateKey = Object.keys(stateArray)[i];
 							for(j=0; j < stateArray[stateKey].length;j++){
 								var costKey = stateArray[stateKey][j].cost;
+								document.getElementById(stateKey).innerHTML = parseInt(costKey) + parseInt(document.getElementById(stateKey).innerHTML);
+								document.getElementById(stateKey).style.color = "red";
 								
 							}
 						}
 						
-						//console.log(Object.keys(stateArray).length);
-			
-					//console.log(arr.state);
+
 					}
+					document.getElementById("hiddenFphCurrentTime").value = arr.fphCurrent;
+					document.getElementById("hiddenFphTime").value = arr.fphTime;
+					
 				} 
 			}
 		
 			xmlHttp.onreadystatechange = responseHandler;
 			xmlHttp.open("GET", "/student-example/jsp/refresh.jsp?fphCurrent="+fphCurrentDom,true);
 			xmlHttp.send(null);
+			
+
 		}
 		
 	</script>		

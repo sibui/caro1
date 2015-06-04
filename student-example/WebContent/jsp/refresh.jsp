@@ -4,7 +4,7 @@
 	<%
 	
 		if (request.getParameter("fphCurrent") != null) {
-			int fphCurrent = Integer.parseInt(request.getParameter("fphCurrent"));
+			int fphCurrent =  Integer.parseInt(request.getParameter("fphCurrent"));
 			int fphTime = (Integer) application.getAttribute("fphTime");
 			JSONObject log = (JSONObject) application.getAttribute("log");
 			JSONObject changes = new JSONObject();
@@ -15,7 +15,7 @@
 			JSONObject returnMessage = new JSONObject();
 			int logNumber = (Integer)application.getAttribute("logNumber");
 			
-			if(fphCurrent != logNumber)
+			if(fphCurrent < logNumber)
 			{	
 				while (fphCurrent < logNumber) {
 					JSONObject logObject = logArray.getJSONObject(fphCurrent+1);
@@ -36,11 +36,14 @@
 				    } catch (JSONException e){}
 			    	fphCurrent++;
 				}
+				session.setAttribute("fphCurrent",fphCurrent);
 			}
 			else
 			{
 				changes.put("returnMessage", "doNothing");
 			}
+			changes.put("fphCurrent", fphCurrent);
+			changes.put("fphTime",fphTime);
 			out.print(changes);
 		}
 	%>
