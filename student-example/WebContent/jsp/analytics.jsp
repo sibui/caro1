@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"%>
 <%@page import="org.json.*"%> 
+<%@ page import="java.sql.*" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <jsp:include page="/html/head.html" />
@@ -11,7 +12,47 @@
             .equalsIgnoreCase("owner") : false;
     JSONObject result = (JSONObject)(application.getAttribute("log"));
     //String tester = result.toString();
-    out.print(result);
+    //out.print(result+"<br>");
+    //out.print((Integer)application.getAttribute("logNumber"));
+    JSONArray logArray = result.getJSONArray("log");
+    //out.print(result.getJSONArray("log"));
+    //out.print(logArray);
+    for(int i = 0; i< logArray.length();i++ )
+    {
+    	JSONObject logObject = logArray.getJSONObject(i);
+    	out.print(logObject.get("state")+"<br>");
+    	String test = logObject.get("state").toString();
+    }
+    int fphTime = (Integer)application.getAttribute("fphTime");
+    int logNumber = (Integer) application.getAttribute("logNumber");
+    session.setAttribute("fphCurrentTime",fphTime );
+    
+    Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet resultset = null;
+    
+	Class.forName("org.postgresql.Driver");
+	
+	// Open a connection to the database using DriverManager
+	conn = DriverManager.getConnection(
+		"jdbc:postgresql://localhost/cse135_small?" +
+	    "user=postgres&password=postgres");
+	
+    //while our precomputed table is behind our log, keep on inserting
+    while(fphTime < logNumber)
+    {
+    	pstmt = conn.prepareStatement("INSERT into fullproducthistory VALUES (?,?,?,?);");
+    	JSONObject logObjectElement = logArray.getJSONObject(fphTime+1);
+    	
+    	pstmt.setString(1,(String)logObjectElement.get("state"));
+    	pstmt.setInt(2,(Integer)logObjectElement.get("cost"));
+    	pstmt.setString(3,(String)logObjectElement.get("pid"));
+    	pstmt.setInt(4,(Integer)logObjectElement.get("cid"));
+    	pstmt.executeUpdate();
+    	fphTime++;
+    }
+    
+    
            // long startTime = System.nanoTime();  
            
 %>

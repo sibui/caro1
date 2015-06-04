@@ -30,11 +30,11 @@
 		//log, state, user rentry from shopping guy needed for analytics 
 		String state=""; 
 		if(nameNotNull){ //if its equal to true 
-			pstmt = conn.prepareStatement("select state from users where name =?");
+			pstmt = conn.prepareStatement("select states.name from users,states where users.name = ? AND states.id = users.state");
 			pstmt.setString(1, (String)session.getAttribute("name"));
 			resultset = pstmt.executeQuery();
 			resultset.next();
-			state = resultset.getString("state");
+			state = resultset.getString("name");
 		}
 		
 	
@@ -77,30 +77,48 @@
                                         Integer uid = LoginHelper.obtainUserFromSession(session);
                                         
                                 	    JSONObject result = PurchaseHelper.purchaseCart(cart, uid); //function call 
-                                	    JSONArray array = result.getJSONArray("log"); // reading the function call 
+                                	    out.print(result);
+                                	    String returnMessage = result.getString("returnMessage");
                                 	    
-                                	    
-                                	    if (application.getAttribute("log") != null) {
-                                	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
-                                	    
-                                	    
+                                	    out.print(returnMessage);
+                                	    if(!returnMessage.contains("Oops!"))
+                                	    {
+	                                 	    JSONArray array = result.getJSONArray("log"); // reading the function call 
+	                                	    
+	                                	    
+	                                	    if (application.getAttribute("log") != null) {
+		                                	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
+		                                	    	JSONArray logArray = new JSONArray();
+		                                	    
+		
+			                                	    for(int i=0; i < array.length();i++){
+			                                    	    JSONObject obj = new JSONObject();
+														
+			                                    	    pstmt = conn.prepareStatement("select products.name, categories.id from products, categories where products.id = ?");
+			                                    	    pstmt.setInt(1,array.getJSONObject(i).getInt("pid"));
+			                                    	    resultset = pstmt.executeQuery();
+			                                    	    resultset.next();
+			                                    	    String pid = resultset.getString("name");
+			                                    	    int cid = resultset.getInt("id");
+			                                	    	int cost = array.getJSONObject(i).getInt("cost");
+			                                	    	
+			                                	    	
+			                                	    	obj.put("cid", cid);
+			                                	    	obj.put("pid",pid);
+			                                	    	obj.put("cost",cost);
+			                                	    	obj.put("state",state);
+			                                	    	int logNumber = (Integer) application.getAttribute("logNumber");
+			                                	    	obj.put("logNumber", logNumber+1);
+			                                	    	application.setAttribute("logNumber",logNumber+1);
+			                                	 		logArray.put(obj); 
+			                                	    	out.println(obj);
+				                                	    log.append("log",obj); 
 
-	                                	    for(int i=0; i < array.length();i++){
-	                                    	    JSONObject obj = new JSONObject();
-												
-	                                	    	int pid = array.getJSONObject(i).getInt("pid");
-	                                	    	int cost = array.getJSONObject(i).getInt("cost");
-	                                	    
-	                                	    
-	                                	    	obj.put("pid",pid);
-	                                	    	obj.put("cost",cost);
-	                                	    	obj.put("state",state);
-	                                	    	//log.
-	                                	 	//log.log.push({"pid": pid, "state": state,"cost":cost,"logNumber":logNumber}); 	
-                                	    	}
-                                	    	out.print(log);
+		                                	    	}
+			                                	    //log.append("log",logArray); 
+		                                	    	out.print(log);
+		                               	   		}
                                 	    }
-                                        
                                                                        	   
                                 	} else {
                                 %>

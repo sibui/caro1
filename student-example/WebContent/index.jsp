@@ -14,11 +14,13 @@
 			objElem.put("pid", -1);
 			objElem.put("cost", -1);
 			objElem.put("logNumber", -1);
+			objElem.put("cid", -1);
 			arr.put(objElem);		
 			log.put("log",arr);
 			
 			application.setAttribute("log", log);
 			application.setAttribute("logNumber", 0);
+			application.setAttribute("fphTime", 0);
 			
 			
 		}

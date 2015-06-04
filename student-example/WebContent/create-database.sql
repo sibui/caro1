@@ -111,25 +111,19 @@ INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Xbox 360',          '405
 INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Nintendo Wii U ',    '407033',  430);
 INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Nintendo Wii',      '408076',   232);
 
--- should be removed for project 2.
-CREATE TABLE cart_history (
-    id          SERIAL PRIMARY KEY,
-    uid         INTEGER REFERENCES users (id) NOT NULL
-);
 
 CREATE TABLE sales (
     id          SERIAL PRIMARY KEY,
     uid         INTEGER REFERENCES users (id) NOT NULL,
-    cart_id     INTEGER REFERENCES cart_history (id) NOT NULL, -- should be removed for project 2.
     pid         INTEGER REFERENCES products (id) NOT NULL,
     quantity    INTEGER NOT NULL,
     price       INTEGER NOT NULL
 );
 
-create table FullProductHistory as(SELECT sales.uid, states.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, products.id as category
+create table FullProductHistory as(SELECT states.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, products.id as category
 				  FROM users, products, sales, states
 				  WHERE sales.uid = users.id AND sales.pid = products.id AND users.state = states.id
-				  GROUP BY states.name, sales.uid, products.name, products.id
+				  GROUP BY states.name, products.name, products.id
 				  ORDER BY SUM(sales.price*sales.quantity) DESC);
 
 
