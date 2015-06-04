@@ -25,7 +25,7 @@
     }
     int fphTime = (Integer)application.getAttribute("fphTime");
     int logNumber = (Integer) application.getAttribute("logNumber");
-    session.setAttribute("fphCurrentTime",fphTime );
+    //session.setAttribute("fphCurrentTime",fphTime );
     
     Connection conn = null;
 	PreparedStatement pstmt = null;
@@ -51,7 +51,8 @@
     	pstmt.executeUpdate();
     	fphTime++;
     }
-    
+    application.setAttribute("fphTime", fphTime);
+    session.setAttribute("fphCurrentTime",fphTime );
     
            // long startTime = System.nanoTime();  
            

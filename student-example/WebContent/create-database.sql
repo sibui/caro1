@@ -120,7 +120,7 @@ CREATE TABLE sales (
     price       INTEGER NOT NULL
 );
 
-create table FullProductHistory as(SELECT states.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, products.id as category
+create table FullProductHistory as(SELECT states.name, SUM(sales.price*sales.quantity) AS total, products.name as productname, products.cid as category
 				  FROM users, products, sales, states
 				  WHERE sales.uid = users.id AND sales.pid = products.id AND users.state = states.id
 				  GROUP BY states.name, products.name, products.id

@@ -124,7 +124,7 @@
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
 				  "FROM (SELECT productName, total FROM FullProductHistory WHERE category = ? ) as fph " +
 				  "GROUP BY productName " +
-				  "ORDER BY "+ productNameOrTopK+ " LIMIT 50 OFFSET ? )");
+				  "ORDER BY SUM(total) DESC LIMIT 50 OFFSET ? )");
 		  categorySearch = true;
 		  pstmtProducts.setInt(1, Integer.parseInt(request.getParameter("category")));	
 		  pstmtProducts.setInt(2,productOffset);
@@ -149,7 +149,7 @@
 	  
 	  
 	  //is it state or customer?
-	  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
+	  pstmtMiddleTable = conn.prepareStatement("create temporary table middleTable as( "+
 			  "select name as name, productname, total from FullProductHistory "+
 			  "WHERE name in (SELECT name from stateSort) "+
 			  "AND productname in (SELECT productname from productSort) "+

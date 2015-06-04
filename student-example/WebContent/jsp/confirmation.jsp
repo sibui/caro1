@@ -94,12 +94,12 @@
 			                                	    for(int i=0; i < array.length();i++){
 			                                    	    JSONObject obj = new JSONObject();
 														
-			                                    	    pstmt = conn.prepareStatement("select products.name, categories.id from products, categories where products.id = ?");
+			                                    	    pstmt = conn.prepareStatement("select products.name, products.cid from products, categories where products.id = ?");
 			                                    	    pstmt.setInt(1,array.getJSONObject(i).getInt("pid"));
 			                                    	    resultset = pstmt.executeQuery();
 			                                    	    resultset.next();
 			                                    	    String pid = resultset.getString("name");
-			                                    	    int cid = resultset.getInt("id");
+			                                    	    int cid = resultset.getInt("cid");
 			                                	    	int cost = array.getJSONObject(i).getInt("cost");
 			                                	    	
 			                                	    	
