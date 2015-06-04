@@ -119,6 +119,13 @@
 				  "GROUP BY productName " +
 				  "ORDER BY SUM(total) DESC LIMIT 50 OFFSET ? )");
 		  pstmtProducts.setInt(1,productOffset);
+		  // (default state)no filters have been chosen
+		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT name as name, sum(total) " +
+					  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
+					  "GROUP BY name "+
+					  "ORDER BY SUM(total) DESC LIMIT 50 OFFSET ?)");
+			  pstmtCustStates.setInt(1,custStateOffset);
+
 	  }
 	  else {	  
 		  pstmtProducts = conn.prepareStatement("create temporary table productSort as (SELECT productName, sum(total) " +
@@ -128,16 +135,18 @@
 		  categorySearch = true;
 		  pstmtProducts.setInt(1, Integer.parseInt(request.getParameter("category")));	
 		  pstmtProducts.setInt(2,productOffset);
+		  // (default state)no filters have been chosen
+		  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT name as name, sum(total) " +
+					  "FROM (SELECT name, total FROM FullProductHistory WHERE category = ?) as fph "+
+					  "GROUP BY name "+
+					  "ORDER BY SUM(total) DESC LIMIT 50 OFFSET ?)");
+		  	  pstmtCustStates.setInt(1, Integer.parseInt(request.getParameter("category")));
+			  pstmtCustStates.setInt(2,custStateOffset);
+
 	  }	  
 	  
 	  
 	  
-	  // (default state)no filters have been chosen
-	  pstmtCustStates = conn.prepareStatement("create temporary table stateSort as (SELECT name as name, sum(total) " +
-				  "FROM (SELECT name, total FROM FullProductHistory) as fph "+
-				  "GROUP BY name "+
-				  "ORDER BY SUM(total) DESC LIMIT 50 OFFSET ?)");
-		  pstmtCustStates.setInt(1,custStateOffset);
 	  
 	  
 
@@ -231,6 +240,8 @@
 		
 	  
 	%>     
+	<input type="hidden" id="hiddenFphCurrentTime" value="<%=session.getAttribute("fphCurrentTime")%>" method="GET"></>
+	<input type="hidden" id="hiddenFphTime" value="<%=application.getAttribute("fphTime")%>" method="GET"></>
 	<button id="refreshButton" name="refresh" value="refresh" onclick="refresh()">Refresh</button>
 	<table class="table table-border">
 		<tr>
@@ -243,7 +254,7 @@
 			{
 				length = 10;
 			}
-			out.print("<th>"+productNameSort[i].substring(0,length)+"<br>($"+productTotalCostSort[i]+")</th>");
+			out.print("<th>"+productNameSort[i].substring(0,length)+"<br>($<i name=\"namecell\" id=\""+productNameSort[i].substring(0,length)+"\">"+productTotalCostSort[i]+"</i>)</th>");
 			i++;
 		} %>
 		
@@ -263,8 +274,7 @@
 			        <input type="submit" value="Next 50 Products">
 					</form>
 				</td>
-				<input type="hidden" id="hiddenFphCurrentTime" value="<%=session.getAttribute("fphCurrentTime")%>" method="GET"></>
-				<input type="hidden" id="hiddenFphTime" value="<%=application.getAttribute("fphTime")%>" method="GET"></>
+				
 				
 		<% } %>
 		</tr>
@@ -301,6 +311,10 @@
 			var responseHandler = function() {
 				if (xmlHttp.readyState == 4) {
 					var arr = JSON.parse(xmlHttp.responseText);
+					console.log("fphCurrent:"+arr.fphCurrent);
+					console.log("fphTime:"+arr.fphTime);
+					document.getElementById("hiddenFphCurrentTime").value = arr.fphCurrent;
+					document.getElementById("hiddenFphTime").value = arr.fphTime;
 					
 					if(!arr.returnMessage.contains("doNothing")){
 						var stateArray = arr.state;
@@ -313,9 +327,22 @@
 								
 							}
 						}
+						var productArray = arr.pid;
+						for(i = 0; i< Object.keys(productArray).length; i++)
+						{
+							var productKey = Object.keys(productArray)[i];
+							for(j=0; j< productArray[productKey].length;j++)
+							{
+								costKey = productArray[productKey][j].cost;
+								document.getElementById(productKey).innerHTML = parseInt(costKey) + parseInt(document.getElementById(productKey).innerHTML);
+								document.getElementById(productKey).style.color= "red";
+							}
+						}
 						
 
 					}
+					console.log("fphCurrent:"+arr.fphCurrent);
+					console.log("fphTime:"+arr.fphTime);
 					document.getElementById("hiddenFphCurrentTime").value = arr.fphCurrent;
 					document.getElementById("hiddenFphTime").value = arr.fphTime;
 					
