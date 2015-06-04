@@ -33,7 +33,7 @@
 		"jdbc:postgresql://localhost/cse135_small?" +
 	    "user=postgres&password=postgres");
 	
-    //while our precomputed table is behind our log, keep on inserting
+    //while our precomputed table is behind our log, keep on inserting until it is up-to-date
     while(fphTime < logNumber)
     {
     	pstmt = conn.prepareStatement("INSERT into fullproducthistory VALUES (?,?,?,?);");
