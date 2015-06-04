@@ -158,7 +158,7 @@
 	  
 	  
 	  //is it state or customer?
-	  pstmtMiddleTable = conn.prepareStatement("create temporary table middleTable as( "+
+	  pstmtMiddleTable = conn.prepareStatement("create table middleTable as( "+
 			  "select name as name, productname, total from FullProductHistory "+
 			  "WHERE name in (SELECT name from stateSort) "+
 			  "AND productname in (SELECT productname from productSort) "+
@@ -183,6 +183,7 @@
 	  int[] productTotalCostSort = new int[50];
 	  int[] custStateTotalCostSort = new int[50];
 	  int[][] middleTable = new int[50][50];
+	  
 	  for(int i = 0; i < 50; i++)
 	  {
 		  for(int j = 0; j < 50; j++)
@@ -210,9 +211,10 @@
 		for(int k = 0; k < customerCounter; k++ )
 		{
 			rsMiddle = middleStatement.executeQuery("select name, productname, sum(total) as total from middleTable where name = '" + custStateNameSort[k]+"'"+" group by name, productname");
-			int middleProductCounter = 0;
+			
 			while (rsMiddle.next()) 
 			{ 
+				int middleProductCounter = 0;
 				String name = rsMiddle.getString("name");
 				String productName =rsMiddle.getString("productname");
 				int total =rsMiddle.getInt("total");
@@ -224,12 +226,6 @@
 					{
 						middleTable[middleProductCounter][k] = total;
 						//out.print("productNameSort["+middleProductCounter+"]="+productNameSort[middleProductCounter]+" !middleTable["+middleProductCounter+"]["+k+"] = "+total+"<br>");
-					}
-					else
-					{
-						//out.print("productNameSort["+middleProductCounter+"]="+productNameSort[middleProductCounter]+"@middleTable["+middleProductCounter+"]["+k+"] = "+0+"<br>");
-						middleTable[middleProductCounter][k] = 0;
-						
 					}
 					middleProductCounter++;
 				}	
@@ -286,7 +282,7 @@
 				out.print("<th>"+custStateNameSort[j]+"<br>($<i name=\"namecell\" id=\""+custStateNameSort[j]+"\">"+custStateTotalCostSort[j]+"</i>)</th>");
 				for(int a = 0; a < productCounter; a++)
 				{
-					out.print("<td>$"+middleTable[a][j]+"</td>");	
+					out.print("<td>$<i name=\"namecell\" id=\""+custStateNameSort[j]+"|"+productNameSort[a]+"\">"+middleTable[a][j]+"</i></td>");	
 				}
 				out.print("</tr>");
 				j++;
@@ -327,6 +323,7 @@
 								
 							}
 						}
+						
 						var productArray = arr.pid;
 						for(i = 0; i< Object.keys(productArray).length; i++)
 						{
@@ -339,12 +336,21 @@
 							}
 						}
 						
+						var middleArray = arr.statepid;
+						for(i = 0; i< Object.keys(middleArray).length; i++)
+						{
+							var middleKey = Object.keys(middleArray)[i];
+							for(j=0; j< middleArray[middleKey].length;j++)
+							{
+								costKey = middleArray[middleKey][j].cost;
+								document.getElementById(middleKey).innerHTML = parseInt(costKey) + parseInt(document.getElementById(middleKey).innerHTML);
+								document.getElementById(middleKey).style.color= "red";
+							}
+						}
+						
+						
 
 					}
-					console.log("fphCurrent:"+arr.fphCurrent);
-					console.log("fphTime:"+arr.fphTime);
-					document.getElementById("hiddenFphCurrentTime").value = arr.fphCurrent;
-					document.getElementById("hiddenFphTime").value = arr.fphTime;
 					
 				} 
 			}

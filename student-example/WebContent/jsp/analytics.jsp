@@ -18,17 +18,6 @@
     JSONArray logArray = result.getJSONArray("log");
     //out.print(result.getJSONArray("log"));
     //out.print(logArray);
-    for(int i = 0; i< logArray.length();i++ )
-    {
-    	JSONObject logObject = logArray.getJSONObject(i);
-    	//out.print(JSONObject.getNames(logObject)+"<br>");
-    	Iterator<?> keys = logObject.keys();
-    	while( keys.hasNext() ) {
-    	    String key = (String)keys.next();
-    	    out.print(key+"<br>");
-    	}
-    	String test = logObject.get("state").toString();
-    }
     int fphTime = (Integer)application.getAttribute("fphTime");
     int logNumber = (Integer) application.getAttribute("logNumber");
     //session.setAttribute("fphCurrentTime",fphTime );
