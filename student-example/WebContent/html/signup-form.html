@@ -6,6 +6,7 @@
             <tr>
                 <td>Name:</td>   
                 <td>
+                	<!-- Hidden p tags for checking if a username is valid -->
                 	<p style="color: green;" id="nameSuccess"></p>
                 	<p style="color:red;" id="nameP"></p>
                 	<input type="text" id="name" name="name"></td>       
@@ -87,12 +88,16 @@
             </tr>
         </table>
     </form>
+    <!-- We decided to make an button outside of the form because we wanted to submit the form ourself due to
+   timing issues. The javascript method dealing with username checking is done through a onclick event handler and
+   where change() is called.-->
     <center><button type="button" value="Signup" id="submit" onclick="change();">Signup</button></center>
 </div>
 
 <script type="text/javascript">
 	
 	function change(){ 
+		//Variables to keep track of field label ids and user input
 		var name = document.getElementById('name').value;
 		var role = document.getElementById('role').value;
 		var age = document.getElementById('age').value;
@@ -104,6 +109,7 @@
 		var3 = true;
 		var4 = true;
 		
+		//Open up an AJAX request
 		var xmlHttp;
 		xmlHttp = new XMLHttpRequest();
 		
@@ -112,11 +118,14 @@
 		
 		var responseHandler = function()
 		{
+			//When the AJAX request is okay, enter below
 			if (xmlHttp.readyState == 4) {
 				
+				//Grab the request text given back from username.jsp
 				var arr = JSON.parse(xmlHttp.responseText);
 				console.log(arr.name);
 					
+				//All checks for user inputs
 				if (arr.name=="name provided") {
 					var0 = true;
 					var1 = true;
@@ -162,34 +171,25 @@
 				if( var0 == false|| var1 == false || var2 == false || var3 == false || var4 == false){
 					return false;	
 				}
+				//Upon a successful signup, a p tag appears with text in green
 				else{
 					document.getElementById("nameSuccess").innerHTML = "You have successfully sign up"; 
 					//document.getElementById("myform").submit();
 				 	xmlSignup.open("GET","/student-example/signup?name="+name +"&role=" + role + "&age=" + age + "&state=" + state,true);
 				  	console.log("/student-example/signup?name="+name +"&role=" + role + "&age=" + age + "&state=" + state);
 				 	xmlSignup.send(null);
-				  	
-
-					
-				}
-					
-// 					if (xmlHttp.status == 200) {
-// 						return;
-// 					}
-// 					else {
-// 						alert("HTTP status is " + xmlHttp.status + " instead of 200");
-// 						return false;
-// 					}
 				}
 			}
-	
-		  	xmlHttp.onreadystatechange = responseHandler;
-	
-		  	xmlHttp.open("GET","/student-example/jsp/username.jsp?name="+name,true);
-		  	xmlHttp.send(null);
-			
-			document.getElementById("nameP").innerHTML = "";
-			return false; //doesnt sumbit when clicking 
+		}
+		
+	  	xmlHttp.onreadystatechange = responseHandler;
+
+	  	//Opens up an AJAX Get request to username.jsp
+	  	xmlHttp.open("GET","/student-example/jsp/username.jsp?name="+name,true);
+	  	xmlHttp.send(null);
+		
+		document.getElementById("nameP").innerHTML = "";
+		return false; //doesnt sumbit when clicking 
 }
 	
 </script>

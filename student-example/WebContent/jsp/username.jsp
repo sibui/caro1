@@ -1,7 +1,11 @@
 <%@page import="org.json.*"%> 
+<%-- Needed for only JSON to return back to signup-form.html --%>
 <% response.setContentType("text/JSON"); %>
 <%--  <% response.setContentType("text/xml"); %> --%>
 <%-- <%@ page contentType="text/xml; charset=utf-8" language="java"%> --%>
+
+<%-- We run a query on getting the name from the users table to check if the 
+     username already exists. --%>
 	<%
 	
 		String name = null;
@@ -34,7 +38,7 @@
 	 	Statement userStatement = conn.createStatement();
 	 	pstmt = conn.prepareStatement("select * from users where name=?");
 	 	pstmt.setString(1, name);
-	 	String returnResult = "";	 
+	 	String returnResult = "";	 //what gets returned from the AJAX request
 	 	if(!name.equals(""))
 	 	{
 		 	result = pstmt.executeQuery();
@@ -54,6 +58,7 @@
 	 		returnResult = "blank";
 	 	}
 	 	
+	 	//This is the JSONObject being returned with the appropriate message
 	 	JSONObject username = new JSONObject();
 	 	username.put("name", returnResult);
 	 	out.print(username);

@@ -5,6 +5,9 @@
 </head>
 <body class="page-index" data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
 	<%@page import="org.json.*"%> 
+	<%-- Makes a log file when logging in. This log file contains a JSON array containing
+	state, pid, cost, logNumber, and cid(category id). We created a log file to keep track
+	of newly purchased items, in order for the changes to occur in the analytics.jsp page --%>
 	<%
 		if (application.getAttribute("log") == null) {
 			JSONObject log = new JSONObject();
@@ -18,9 +21,9 @@
 			arr.put(objElem);		
 			log.put("log",arr);
 			
-			application.setAttribute("log", log);
-			application.setAttribute("logNumber", 0);
-			application.setAttribute("fphTime", 0);
+			application.setAttribute("log", log); //Making the JSON object an application attribute
+			application.setAttribute("logNumber", 0); //Keeps track of how many purchases were made
+			application.setAttribute("fphTime", 0); //Refers to when the last time you updated fullproducthistory since the table does not update itself
 			
 			
 		}

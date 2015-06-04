@@ -28,7 +28,6 @@ public class PurchaseHelper {
             	try {
 					error.put("error", returnMsg);
 				} catch (JSONException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
                 return error;
@@ -39,13 +38,6 @@ public class PurchaseHelper {
                 int quantity = cart.getQuantities().get(i);
                 conn.setAutoCommit(false);
 		
-                //String SQL_1 = "INSERT INTO cart_history (uid) VALUES (" + uid + ");";
-                //stmt.execute(SQL_1);
-                // Gets latest inserted id. See this stackoverflow for more information http://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id
-               // String SQL_2 = "SELECT lastval();";
-               // ResultSet rs = stmt.executeQuery(SQL_2);
-               // rs.next();
-               // int cart_id = rs.getInt(1);
                 String SQL_3 = "INSERT INTO sales (uid, pid, quantity, price) VALUES(" + uid + ",'"
                         + p.getId() + "','" + quantity + "', " + p.getPrice() + ");";
                 stmt.execute(SQL_3);
@@ -53,23 +45,21 @@ public class PurchaseHelper {
                 conn.setAutoCommit(true);
 
 		try {
-					log.put("pid", p.getId());
+					log.put("pid", p.getId()); //puts the pid into the log JSONObject attribute
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
                 try {
-					log.put("cost", p.getPrice()*quantity);
+					log.put("cost", p.getPrice()*quantity); //puts the total cost into the log JSONObject attribute
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		//puts the log JSONObject into the log JSONArray
                 logArray.put(log);
                 try {
                 	//put logArray into the larger JSON Object
 					returnResultJ.put("log",logArray);
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }
@@ -79,20 +69,16 @@ public class PurchaseHelper {
             try {
 				returnResultJ.put("returnMessage", returnMsg);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-            //return HelperUtils.printSuccess("Purchase successful!");
             return returnResultJ;
         } catch (SQLException e) {
         	returnMsg = HelperUtils.printError("Oops! Looks like the product you want to buy is no longer available...");
         	try {
 				returnResultJ.put("returnMessage", returnMsg);
 			} catch (JSONException e2) {
-				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-            //return HelperUtils.printError("Oops! Looks like the product you want to buy is no longer available...");
         	return returnResultJ;
         } finally {
             try {

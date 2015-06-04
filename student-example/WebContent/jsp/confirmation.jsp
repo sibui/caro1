@@ -77,7 +77,7 @@
                                         Integer uid = LoginHelper.obtainUserFromSession(session);
                                         
                                 	    JSONObject result = PurchaseHelper.purchaseCart(cart, uid); //function call 
-                                	    out.print(result);
+                                	    //out.print(result);
                                 	    String returnMessage = result.getString("returnMessage");
                                 	    
                                 	    out.print(returnMessage);
@@ -87,6 +87,7 @@
 	                                	    
 	                                	    
 	                                	    if (application.getAttribute("log") != null) {
+	                                	    		//Setting up the log and logArray for when you purchase the items with credit card
 		                                	    	JSONObject log = (JSONObject) (application.getAttribute("log"));
 		                                	    	JSONArray logArray = new JSONArray();
 		                                	    
@@ -94,6 +95,7 @@
 			                                	    for(int i=0; i < array.length();i++){
 			                                    	    JSONObject obj = new JSONObject();
 														
+			                                    	    //query for purchase items
 			                                    	    pstmt = conn.prepareStatement("select products.name, products.cid from products, categories where products.id = ?");
 			                                    	    pstmt.setInt(1,array.getJSONObject(i).getInt("pid"));
 			                                    	    resultset = pstmt.executeQuery();
@@ -102,7 +104,7 @@
 			                                    	    int cid = resultset.getInt("cid");
 			                                	    	int cost = array.getJSONObject(i).getInt("cost");
 			                                	    	
-			                                	    	
+			                                	    	//Put into the JSON array an cid, pid, cost, and state
 			                                	    	obj.put("cid", cid);
 			                                	    	obj.put("pid",pid);
 			                                	    	obj.put("cost",cost);
@@ -111,11 +113,11 @@
 			                                	    	obj.put("logNumber", logNumber+1);
 			                                	    	application.setAttribute("logNumber",logNumber+1);
 			                                	 		logArray.put(obj); 
-			                                	    	out.println(obj);
-				                                	    log.append("log",obj); 
+			                                	    	//out.println(obj);
+				                                	    log.append("log",obj); //adding the newly purchased stuff into the log file
 		                                	    	}
 			                                	    //log.append("log",logArray); 
-		                                	    	out.print(log);
+		                                	    	//out.print(log);
 		                               	   		}
                                 	    }
                                                                        	   
