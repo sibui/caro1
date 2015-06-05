@@ -126,5 +126,7 @@ create table FullProductHistory as(SELECT states.name, SUM(sales.price*sales.qua
 				  GROUP BY states.name, products.name, products.id
 				  ORDER BY SUM(sales.price*sales.quantity) DESC);
 
-
+CREATE INDEX stateIndex ON fullProductHistory(name);
+CREATE INDEX productNameIndex ON fullProductHistory(productName);
+CREATE INDEX categoryIndex ON fullProductHistory(category);
 
